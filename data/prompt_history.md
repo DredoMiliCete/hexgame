@@ -63,3 +63,17 @@ Rules Missing (from the initial rules.csv file):
 * During the pregame movement phase, all Control Points are counted as walls
 
 
+## Map Maker Addition -- v0.3
+Ok, everything seems to be working fine, apart from:
+
+another rules clarification, during the pregame move phase, BLU entity cannot cross into Red territory, and the same for RED entities and BLU territory
+Now, I want us to get into the MapMaker option on the Menu
+In the Map Maker, you can both create new maps or edit existing maps (yours or built-in), and also delete non built-in maps.
+The default max size you can make for a map is 12x12 (so from coordinates 0,0 to 11,11), but that can be changes in in-game options to a bigger size.
+Some placement rules:
+
+Whenever you place a teleport, you musst connect it to another teleport/anchor (according to the rules. You may either connect to an existing one, or create a new one of this two);
+Whenever you place a High Ground tile, you must choose its direction
+A map cannot be saved if you have not placed 7 Red Spawn tiles or 7 Blu Spawn tiles
+any more questions, be sure to ask, if not, go for it
+

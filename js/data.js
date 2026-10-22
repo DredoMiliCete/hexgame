@@ -290,7 +290,7 @@ export const HEROES = [
     "name": "Mark Rhythm",
     "cost": null,
     "passive": true,
-    "text": "Whenever Note is gathered, choose by current song:\n  - Classical: if there atleast 2 other allied entities adjacent to Tune, he gains 1 money;\n  - Rock: deal 1 damage to every adjacent entity;\n  - Jazz: you may move Tune or an adjacent allied entity by up to 2 tiles;"
+    "text": "Whenever Tune is gathered, choose by current song:\n  - Classical: if there atleast 2 other allied entities adjacent to Tune, he gains 1 money;\n  - Rock: deal 1 damage to every adjacent entity;\n  - Jazz: you may move Tune or an adjacent allied entity by up to 2 tiles;"
    },
    {
     "name": "Play the Tune",
@@ -464,7 +464,7 @@ export const HEROES = [
     "name": "I Found a Place",
     "cost": null,
     "passive": true,
-    "text": "If this was gathered, choose 2 tiles that are not adjacent to other 6 tiles. Until the end of the round, those tiles are adjacent."
+    "text": "If this was gathered, choose 2 tiles that are not adjacent to other 6 barrier tiles. Until the end of the round, those tiles are adjacent."
    },
    {
     "name": "Monkey Oil",
@@ -624,7 +624,7 @@ export const TILE_INFO = {
  "MP": {
   "name": "Money Point",
   "look": "yellow with a dollar sign",
-  "text": "end of a round, an entity here gains 1 money. is part of the Monetary Victory"
+  "text": "end of a round, an entity here gains 1 money. is part of the Monetary Victory. they count as being part of the territory of tiles next to it (if next to a BLU tile, then BLU territory, if next to a RED tile, then RED territory, if neither, then not part of any territory)"
  },
  "BT": {
   "name": "Blu Teleport",
@@ -641,10 +641,15 @@ export const TILE_INFO = {
   "look": "purple with a blu dot",
   "text": "no special effects. part of Blu Territory. from its POV, does NOT count as adjacent to a Blu Teleport that points to it (only in the Blu Teleport's POV does it count)"
  },
+ "RA": {
+  "name": "Red Anchor",
+  "look": "purple with a red dot",
+  "text": "same as Blu Anchor, but for Red"
+ },
  "WW": {
   "name": "Wall",
   "look": "gray",
-  "text": "entities cannot attack through or move to or through this tile. blocks lines of sight"
+  "text": "entities cannot attack through or move to or through this tile. blocks lines of sight. is a barrier tile."
  },
  "HG": {
   "name": "High Ground tile",
@@ -655,10 +660,5 @@ export const TILE_INFO = {
   "name": "Heal Tile",
   "look": "lime with a dark green cross",
   "text": "whenever an entity passes or ends its move in this, heal it for 1. end of the round, heal the entity here for 2"
- },
- "RA": {
-  "name": "Red Anchor",
-  "look": "purple with a red dot",
-  "text": "same as Blu Anchor, but for Red"
  }
 };

@@ -19,7 +19,7 @@ export function hexDist(a, b) {
 // Direction (name) from a to b if they are on a straight line, else null.
 export function dirBetween(a, b) {
   for (const d of DIR_LIST) {
-    for (let i = 1; i <= 14; i++) {
+    for (let i = 1; i <= 40; i++) {
       const [x, y] = step(a.x, a.y, d, i);
       if (x === b.x && y === b.y) return d;
     }

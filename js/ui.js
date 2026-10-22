@@ -1,17 +1,32 @@
 // Game screen: renders the board/HUD and implements the `io` object the engine talks to.
-import { toPixel, key } from './hex.js';
+import { toPixel, key, DIRS } from './hex.js';
+import { hgDir } from './maps.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
 import { heroImage, tokenImage, tileImage, onAssetLoad } from './assets.js';
 import { heroColor, portrait, portraitById } from './colors.js';
 
 const S = 38;
-const TILE_FILL = { BS: '#2f6fd0', RS: '#e0284f', BN: '#6aa957', RN: '#a39a39', MM: '#3f8a1c', WW: '#5e6264', BT: '#c68ad0', RT: '#c68ad0', BA: '#b6a0e0', RA: '#e0a0b0', CP: '#cf6bff', MP: '#ffc21a', HG: '#8d7b68', HT: '#7fd3b0' };
-const TILE_GLYPH = { CP: '★', MP: '$', BA: '⚓', RA: '⚓', HT: '+', HG: '▲' };
+export const TILE_FILL = { BS: '#2f6fd0', RS: '#e0284f', BN: '#6aa957', RN: '#a39a39', MM: '#3f8a1c', WW: '#5e6264', BT: '#c68ad0', RT: '#c68ad0', BA: '#b6a0e0', RA: '#e0a0b0', CP: '#cf6bff', MP: '#ffc21a', HG: '#8d7b68', HT: '#7fd3b0' };
+export const TILE_GLYPH = { CP: '★', MP: '$', BA: '⚓', RA: '⚓', HT: '+', HG: '▲' };
 const BLU = '#5a9bff', RED = '#ff6379', GOLD = '#f4c34f';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const hex = (cx, cy, r) => [0, 1, 2, 3, 4, 5].map((i) => `${(cx + r * Math.cos(Math.PI / 3 * i)).toFixed(1)},${(cy + r * Math.sin(Math.PI / 3 * i)).toFixed(1)}`).join(' ');
+export const hex = (cx, cy, r) => [0, 1, 2, 3, 4, 5].map((i) => `${(cx + r * Math.cos(Math.PI / 3 * i)).toFixed(1)},${(cy + r * Math.sin(Math.PI / 3 * i)).toFixed(1)}`).join(' ');
 const pips = (on, total) => Array.from({ length: total }, (_, i) => `<i class="${i < on ? 'on' : ''}"></i>`).join('');
+
+// Arrow / glyph drawn on top of a tile (shared by the game board and the map maker).
+// Teleports point at their target; High Ground tiles point in their direction.
+export function tileDecor(t, P, hasImg) {
+  const [cx, cy] = P(t.x, t.y);
+  const arrow = (tx, ty, fill, stroke) => {
+    const [px, py] = P(tx, ty); const ang = Math.atan2(py - cy, px - cx) * 180 / Math.PI;
+    return `<g transform="rotate(${ang.toFixed(0)})" pointer-events="none"><path d="M-12,-5 H4 V-12 L16,0 L4,12 V5 H-12 Z" fill="${fill}" fill-opacity=".8" stroke="${stroke}" stroke-width="1.5"/></g>`;
+  };
+  if (t.t === 'BT' || t.t === 'RT') return t.tx != null ? arrow(t.tx, t.ty, '#fff', '#6d3b78') : '';
+  if (t.t === 'HG') { const d = t.hgd || hgDir(t.hg); if (d) return arrow(t.x + DIRS[d][0], t.y + DIRS[d][1], '#cfd4d6', '#2f3638'); }
+  if (TILE_GLYPH[t.t] && !hasImg) return `<text class="glyph" text-anchor="middle" dy=".35em">${TILE_GLYPH[t.t]}</text>`;
+  return '';
+}
 
 export class GameView {
   constructor(root, onExit) {
@@ -28,12 +43,14 @@ export class GameView {
         <div class="log" id="log"></div></div></div>`;
     this.$ = (id) => root.querySelector('#' + id);
     this.$('board').addEventListener('click', (ev) => this.onBoardClick(ev));
-    root.addEventListener('click', (ev) => this.onUiClick(ev));
+    this.uiClick = (ev) => this.onUiClick(ev); root.addEventListener('click', this.uiClick); // `root` outlives this view: destroy() must remove it
     onAssetLoad(() => this.render());
     this.io = this.makeIO();
   }
+  // Called when leaving the game screen: stops this (abandoned) view from reacting to clicks or drawing into the next screen.
+  destroy() { this.dead = true; this.root.removeEventListener('click', this.uiClick); clearTimeout(this.sumTimer); this.pending = null; }
   attach(g) { this.g = g; this.render(); }
-  render() { if (this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g) this.draw(); }); }
+  render() { if (this.dead || this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g) this.draw(); }); }
   draw() { this.drawHud(); this.drawSides(); this.drawBoard(); this.drawInfo(); this.drawActions(); this.drawSummary(); }
 
   // ---------- IO ----------
@@ -160,10 +177,7 @@ export class GameView {
       const [cx, cy] = P(t.x, t.y); const hl = this.hl.has(key(t.x, t.y)); const img = tileImage(t.t);
       out += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${t.x}" data-y="${t.y}" class="tile ${hl ? 'hl' : ''}"><title>${t.x},${t.y} ${esc(t.t)}</title><polygon points="${hex(0, 0, S - 2)}" fill="${TILE_FILL[t.t] || '#888'}" stroke="#2a2f31" stroke-width="3"/>`;
       if (img) out += `<image href="${img}" x="${-S}" y="${-S}" width="${2 * S}" height="${2 * S}" clip-path="url(#hexclip)" preserveAspectRatio="xMidYMid slice"/>`;
-      if (t.t === 'BT' || t.t === 'RT') {
-        const [tx, ty] = P(t.tx, t.ty); const ang = Math.atan2(ty - cy, tx - cx) * 180 / Math.PI;
-        out += `<g transform="rotate(${ang.toFixed(0)})"><path d="M-12,-5 H4 V-12 L16,0 L4,12 V5 H-12 Z" fill="#fff" fill-opacity=".75" stroke="#6d3b78" stroke-width="1.5"/></g>`;
-      } else if (TILE_GLYPH[t.t] && !img) out += `<text class="glyph" text-anchor="middle" dy=".35em">${TILE_GLYPH[t.t]}</text>`;
+      out += tileDecor(t, P, !!img);
       if (this.showCoords) out += `<text class="coord" text-anchor="middle" y="${S * 0.62}">${t.x},${t.y}</text>`;
       if (hl) out += `<polygon points="${hex(0, 0, S - 4)}" class="hlp"/>`;
       out += '</g>';

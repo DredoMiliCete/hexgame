@@ -10,8 +10,20 @@ Browsers block ES modules from `file://`, so serve the folder:
 ## Menu
 Draft mode (1-2-2-2-2-2-2-1 picks, starting player picks first) - Constructed mode (7 heroes each, repeats allowed across teams)
 - Compbuilder (save team compositions; "Interrail Comp" is built in and read-only - duplicate it to edit)
-- Hero abilities panel (tokens created by a hero are linked from its page) - Map creator (coming soon).
+- Hero abilities panel (tokens created by a hero are linked from its page)
+- Map maker (create, edit and delete maps - see below) - Options (maximum map size for the map maker).
 Compositions are stored in the browser (localStorage), so they belong to the address you use (keep using http://localhost:8000).
+
+## Map maker
+Menu -> Map maker. The list shows every map (the 5 built-in ones and yours) with a preview: **New map**, **Edit**, and **Delete** (custom maps only).
+- Pick a tile in the palette and click the board; for plain tiles you can also click-and-drag to paint. **Void (erase)** removes a tile. Undo (button or Ctrl+Z) steps back one action (a drag is one action).
+- **Teleports (Blu/Red):** after clicking the board you must connect the teleport to another teleport/anchor *of its own colour*: click one of the highlighted existing tiles, or create a new Teleport/Anchor (a new teleport links back to the first one). Cancelling places nothing.
+- **High Ground:** you must pick its direction (the arrow is drawn on the tile, in the editor and in the game).
+- **Saving** needs a name and at least 7 Blu Spawn and 7 Red Spawn tiles (counters + the reason are shown next to the Save button). Saved maps show up in Draft/Constructed mode as "(custom)".
+- Built-in maps are read-only: opening one gives you a copy ("<name> copy") that you save under a new name. Changing the name of one of your own maps and saving creates a copy; the original stays.
+- Erasing/replacing a tile that teleports point at also removes the teleports that would be left dangling (it asks first; Undo brings them back).
+- **Size:** the board is 12x12 by default (coordinates 0,0 to 11,11). Options -> maximum map size raises it (up to 30). A map bigger than the limit (Lust Map is 13x13) keeps its own size when edited.
+- Custom maps and the option are stored in the browser (localStorage), so - like compositions - they belong to the address you use (keep using http://localhost:8000).
 
 ## Images
 Drop PNGs into `assets/heroes`, `assets/tokens`, `assets/tiles` - see `assets/README.txt` for the exact file names.
@@ -24,7 +36,8 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - `js/engine.js` rules (no DOM). All player decisions go through an `io` object (`pickTile`, `choose`, `roll`, `pickHeroes`, `command`, `hotseat`) -
   this is the seam for the future two-window / two-PC mode: run the engine in one place and forward `io` calls to the right client.
 - `js/abilities.js` the 16 implemented heroes (+ tokens)  - `js/ui.js` board, HUD, io implementation  - `js/main.js` menus/draft
-- `tests/sim.js` random bot games, `tests/rules.js` rule checks (`node tests/...`), `tests/ui-smoke.mjs` jsdom UI run (dev only)
+- `js/maps.js` map registry (built-in + custom), save rules (`validateMap`)  - `js/mapedit.js` editing model (teleport rules, undo)  - `js/mapmaker.js` map maker screens  - `js/options.js` options
+- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs` and `tests/ui-maps.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
 
 ## Interpretations worth double-checking
 - Respawn time is not in rules.csv: `RESPAWN_BASE = 2` rounds (VIP: 1). A hero dying in round N returns at the end of round N+1.
@@ -38,5 +51,5 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - Hidden information: heroes are placed face down behind a "look away" screen; Squeak's Ratio switch also uses it. "Show Rat identities" reveals the real Rat.
 - Cat appears (Paw Pal) when heroes are revealed, not while they are still face down.
 - Teleport tiles are one-way adjacent to their target coordinate; forced moves never trigger "performs a move" effects (Acorn Rattle).
-- HG/HT tiles have basic support in the engine, but no map uses them yet.
-- Not implemented: JoniClan, Manucss, Pombo, Sonecas (shown locked), the map creator, and online play.
+- HG/HT tiles have basic support in the engine; no built-in map uses them, but the Map maker can place them.
+- Not implemented: JoniClan, Manucss, Pombo, Sonecas (shown locked), and online play.

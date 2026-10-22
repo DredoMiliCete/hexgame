@@ -1,6 +1,10 @@
 // Targeted rule checks: node tests/rules.js
 import { Game } from '../js/engine.js';
 import assert from 'assert/strict';
+import { saveCustomMap } from '../js/maps.js';
+import { MAPS } from '../js/data.js';
+// in-memory localStorage so custom maps can be registered from node
+globalThis.localStorage = { d: {}, getItem(k) { return this.d[k] ?? null; }, setItem(k, v) { this.d[k] = String(v); }, removeItem(k) { delete this.d[k]; } };
 const io = { log() {}, refresh() {}, gameOver() {}, hotseat: async () => {}, roll: async () => 3,
   pickTile: async (t, tiles) => tiles[0], choose: async (t, p, o) => o[0].value, pickHeroes: async (t, c, m, f) => f, command: async () => ({ type: 'pass' }) };
 function mk(a, b, map = 'Pride Map') {
@@ -85,6 +89,33 @@ let n = 0; const ok = (name) => { n++; console.log('ok -', name); };
 }
 { // pregame: Control Points are walls
   const g = mk(['driver'], ['hail']); g.phase = 'pregame'; const cp = g.tilesOf('CP')[0]; assert.ok(g.isWall(cp.x, cp.y)); g.phase = 'round'; assert.ok(!g.isWall(cp.x, cp.y)); ok('CPs are walls in pregame only');
+}
+{ // pregame: nobody may enter or cross enemy territory (every built-in map, both teams)
+  let blocked = 0;
+  for (const map of Object.keys(MAPS)) {
+    const g = mk(['driver'], ['hail'], map);
+    for (const t of [0, 1]) {
+      const h = g.heroes(t)[0];
+      for (const st of g.startTiles(t)) {
+        h.x = st.x; h.y = st.y; g.phase = 'pregame';
+        const pre = [...g.reachable(h, 40).values()]; assert.ok(pre.every((q) => g.terr(q.x, q.y) !== 1 - t), `${map}: team ${t} reached enemy territory in pregame`);
+        g.phase = 'round'; const rnd = [...g.reachable(h, 40).values()]; assert.ok(rnd.length >= pre.length); blocked += rnd.length - pre.length;
+      }
+    }
+  }
+  assert.ok(blocked > 0); ok('pregame movement never enters enemy territory (all maps)');
+}
+{ // pregame: enemy territory also blocks crossing (Blu - Red - Blu corridor) and the Cat/other teams use the same rule
+  saveCustomMap('Test Corridor', [{ x: 0, y: 0, t: 'BS' }, { x: 1, y: 0, t: 'BN' }, { x: 2, y: 0, t: 'RN' }, { x: 3, y: 0, t: 'BN' }, { x: 4, y: 0, t: 'RS' }]);
+  const g = new Game('Test Corridor', [['driver'], ['hail']], io, 0); const b = g.heroes(0)[0], r = g.heroes(1)[0]; put(g, b, 0, 0); put(g, r, 4, 0);
+  g.phase = 'pregame'; assert.deepEqual([...g.reachable(b, 6).values()].map((q) => q.x), [1]); assert.equal(g.reachable(r, 6).size, 0); // Red's only neighbour is Blu territory
+  g.phase = 'round'; assert.equal(g.reachable(b, 6).size, 3); ok('pregame: enemy territory cannot be crossed, only entered in the action phase');
+}
+{ // Money Points belong to the territory of the tiles next to them
+  const g = mk(['driver'], ['hail']); assert.equal(g.terr(1, 3), 1); assert.equal(g.terr(7, 5), 0); // Pride Map: MP next to Red / next to Blu
+  saveCustomMap('Test MP', [{ x: 0, y: 0, t: 'BN' }, { x: 1, y: 0, t: 'MP' }, { x: 2, y: 0, t: 'RN' }, { x: 5, y: 0, t: 'MP' }, { x: 6, y: 0, t: 'MM' }, { x: 8, y: 0, t: 'MP' }, { x: 9, y: 0, t: 'RN' }]);
+  const m = new Game('Test MP', [['driver'], ['hail']], io, 0); assert.equal(m.terr(1, 0), null); assert.equal(m.terr(5, 0), null); assert.equal(m.terr(8, 0), 1);
+  ok('Money Point territory follows its neighbours (both or neither = neutral)');
 }
 { // Acorn Rattle ignores Tentacle Grab moves but reacts to normal moves
   const g = mk(['clark', 'oak'], ['hail']); clear(g); const c = g.findHero(0, 'clark'), o = g.findHero(0, 'oak'), h = g.heroes(1)[0];

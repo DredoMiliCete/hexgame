@@ -1,25 +1,25 @@
 // Game engine: pure rules, no DOM. All player decisions go through `io` (see ui.js / tests/sim.js),
 // which makes it possible to drive the same engine from another window / over the network later.
-import { HEROES, MAPS } from './data.js';
+import { HEROES } from './data.js';
+import { getMapTiles, hgDir } from './maps.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
 import { DIR_LIST, DIR_LABEL, key, step, hexDist, OPP, DIRS } from './hex.js';
 import { D, heroDefs, gatherHook, placedHook, rand } from './abilities.js';
 
 const START = ['BS', 'RS'];
+const baseTerr = (t) => (['BN', 'BS', 'BT', 'BA'].includes(t) ? 0 : ['RN', 'RS', 'RT', 'RA'].includes(t) ? 1 : null);
 export const heroDef = (id) => HEROES.find((h) => h.id === id);
 
 export class Game {
   constructor(mapName, teams, io, first = 0) {
     this.io = io; this.mapName = mapName; this.first = first; this.startPlayer = first;
     this.tiles = new Map();
-    for (const t of MAPS[mapName]) {
+    const mapTiles = getMapTiles(mapName);
+    if (!mapTiles) throw new Error(`Unknown map: ${mapName}`);
+    for (const t of mapTiles) {
       const tile = { ...t };
-      if (t.t === 'HG') { // HG(+,0): the signs point at a real direction
-        const s = (v) => (v === '+' ? 1 : v === '-' ? -1 : 0);
-        const vec = [s(t.hg[0]), s(t.hg[1])];
-        tile.hgd = DIR_LIST.find((d) => DIRS[d][0] === vec[0] && DIRS[d][1] === vec[1]);
-      }
+      if (t.t === 'HG') tile.hgd = hgDir(t.hg); // HG(+,0): the signs point at a real direction
       this.tiles.set(key(t.x, t.y), tile);
     }
     this.ents = []; this.nextId = 1; this.smokes = []; this.portals = []; this.seq = 0;
@@ -45,7 +45,20 @@ export class Game {
   isWall(x, y) { const t = this.tile(x, y); return !t || t.t === 'WW' || (this.phase === 'pregame' && t.t === 'CP'); } // CPs are walls during pregame movement
   isFree(x, y) { return !this.isWall(x, y) && !this.entityAt(x, y); }
   smokeAt(x, y) { return this.smokes.some((s) => s.x === x && s.y === y); }
-  terr(x, y) { const t = this.tile(x, y)?.t; if (!t) return null; return 'BN BS BT BA'.includes(t) ? 0 : 'RN RS RT RA'.includes(t) ? 1 : null; }
+  // Territory of a tile: 0 = Blu, 1 = Red, null = neutral. A Money Point belongs to the territory of the tiles next to it
+  // (only Blu next to it -> Blu, only Red -> Red, neither or both -> neutral).
+  terr(x, y) {
+    const t = this.tile(x, y)?.t; if (!t) return null;
+    if (t !== 'MP') return baseTerr(t);
+    let blu = false, red = false;
+    for (const d of DIR_LIST) {
+      const [nx, ny] = step(x, y, d); const n = this.tile(nx, ny); if (!n) continue;
+      const b = baseTerr(n.t); if (b === 0) blu = true; else if (b === 1) red = true;
+    }
+    return blu && !red ? 0 : red && !blu ? 1 : null;
+  }
+  // Pregame movement: an entity may not enter (or cross) the enemy territory.
+  pregameBlocked(e, x, y) { return this.phase === 'pregame' && this.terr(x, y) === 1 - this.team(e); }
   startTiles(t) { return [...this.tiles.values()].filter((x) => x.t === START[t]); }
   tilesOf(type) { return [...this.tiles.values()].filter((x) => x.t === type); }
   isTapped(e) { return e.holds != null ? this.ent(e.holds).tapped : e.tapped; }
@@ -134,7 +147,7 @@ export class Game {
         if (c.d >= steps || c.stop) continue;
         for (const [nx, ny] of this.neighbors(c.x, c.y)) {
           const k = key(nx, ny); if (seen.has(k)) continue;
-          const t = this.tile(nx, ny); const wall = this.isWall(nx, ny); const occ = this.entityAt(nx, ny);
+          const t = this.tile(nx, ny); const wall = this.isWall(nx, ny) || this.pregameBlocked(e, nx, ny); const occ = this.entityAt(nx, ny);
           if (t.t === 'HG' && t.hgd) { const [fx, fy] = step(nx, ny, t.hgd); if (fx === c.x && fy === c.y) continue; }
           if (occ && this.oakBlocks(e, occ)) continue;
           if (!through && (wall || occ)) continue;

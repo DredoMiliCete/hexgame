@@ -1,5 +1,5 @@
 // Menus, hero panel, compbuilder, draft / constructed team selection, and game start.
-import { HEROES, MAPS } from './data.js';
+import { HEROES } from './data.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
 import { Game } from './engine.js';
 import { GameView } from './ui.js';
@@ -7,6 +7,9 @@ import { onAssetLoad, tokenImage } from './assets.js';
 import { TOKENS, HERO_TOKENS } from './tokens.js';
 import { portrait, portraitById, heroColor } from './colors.js';
 import { loadComps, saveComps, newId } from './comps.js';
+import { allMapNames, isBuiltinMap } from './maps.js';
+import { mapMaker } from './mapmaker.js';
+import { getMaxMapSize, setMaxMapSize, DEFAULT_MAX_MAP_SIZE, MAX_MAP_SIZE_LIMIT } from './options.js';
 
 const app = document.getElementById('app');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -45,9 +48,30 @@ function menu() {
       <button class="big" data-go="constructed">Play constructed mode</button>
       <button class="big" data-go="comps">Compbuilder</button>
       <button class="big" data-go="heroes">Hero abilities</button>
-      <button class="big" disabled title="Coming soon">Map creator <small>coming soon</small></button>
+      <button class="big" data-go="maps">Map maker</button>
+      <button class="big" data-go="options">Options</button>
     </div></div></div>`;
-  app.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => ({ draft: () => setup('draft'), constructed: () => setup('constructed'), comps: compbuilder, heroes: heroesPanel }[b.dataset.go]())));
+  app.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => ({ draft: () => setup('draft'), constructed: () => setup('constructed'), comps: compbuilder, heroes: heroesPanel, maps: openMapMaker, options: optionsPage }[b.dataset.go]())));
+}
+
+function openMapMaker() { rerender = null; mapMaker({ app, back: menu, setRerender: (fn) => { rerender = fn; } }); }
+
+function optionsPage() {
+  rerender = null; let msg = '';
+  const draw = () => {
+    app.innerHTML = `<div class="page narrow">${head('Options')}
+      <label class="field">Map maker: maximum map size (tiles per side)<input id="maxsize" type="number" min="${DEFAULT_MAX_MAP_SIZE}" max="${MAX_MAP_SIZE_LIMIT}" step="1" value="${getMaxMapSize()}"></label>
+      <p class="hint">Default ${DEFAULT_MAX_MAP_SIZE}: the map maker board goes from coordinates 0,0 to ${DEFAULT_MAX_MAP_SIZE - 1},${DEFAULT_MAX_MAP_SIZE - 1}. You can raise it up to ${MAX_MAP_SIZE_LIMIT}. Maps you already saved keep their size.</p>
+      <div class="opts"><button class="big" id="osave">Save</button><button id="oreset">Reset to ${DEFAULT_MAX_MAP_SIZE}</button></div><p class="msg">${esc(msg)}</p></div>`;
+    app.querySelector('[data-back]').onclick = menu;
+    app.querySelector('#osave').onclick = () => {
+      const raw = Number(app.querySelector('#maxsize').value);
+      if (!Number.isInteger(raw) || raw < DEFAULT_MAX_MAP_SIZE || raw > MAX_MAP_SIZE_LIMIT) { msg = `Enter a whole number from ${DEFAULT_MAX_MAP_SIZE} to ${MAX_MAP_SIZE_LIMIT}.`; return draw(); }
+      msg = setMaxMapSize(raw) === raw ? `Saved: maps can now be ${raw}×${raw}.` : 'Could not save (browser storage is blocked).'; draw();
+    };
+    app.querySelector('#oreset').onclick = () => { setMaxMapSize(DEFAULT_MAX_MAP_SIZE); msg = `Back to ${DEFAULT_MAX_MAP_SIZE}×${DEFAULT_MAX_MAP_SIZE}.`; draw(); };
+  };
+  draw();
 }
 
 function heroesPanel(start = null) {
@@ -100,9 +124,9 @@ function compbuilder() {
 
 function setup(mode) {
   rerender = null;
-  const maps = Object.keys(MAPS);
+  const maps = allMapNames();
   app.innerHTML = `<div class="page narrow">${head(mode === 'draft' ? 'Draft mode' : 'Constructed mode')}
-    <label class="field">Map<select id="map"><option value="">Random</option>${maps.map((m) => `<option>${esc(m)}</option>`).join('')}</select></label>
+    <label class="field">Map<select id="map"><option value="">Random</option>${maps.map((m) => `<option value="${esc(m)}">${esc(m)}${isBuiltinMap(m) ? '' : ' (custom)'}</option>`).join('')}</select></label>
     <label class="field">Starting player<select id="first"><option value="">Random</option><option value="0">Blu</option><option value="1">Red</option></select></label>
     <p class="hint">${mode === 'draft' ? 'The starting player picks 1 hero, then players alternate picking 2 at a time until each team has 7.' : 'Each player picks a team of 7 heroes (or loads a saved composition). Heroes may repeat across teams, not inside one team.'}</p>
     <button class="big" id="go">Continue</button></div>`;
@@ -158,7 +182,7 @@ function constructed(map, first) {
 
 function startGame(map, teams, first) {
   rerender = null;
-  const view = new GameView(app, menu);
+  const view = new GameView(app, () => { view.destroy(); menu(); });
   const game = new Game(map, teams, view.io, first);
   window.__game = game; // handy for debugging in the browser console
   view.attach(game);

@@ -175,3 +175,33 @@ select { font: inherit; background: var(--panel); color: var(--ink); border: 1px
 input { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 .field.inline { margin: 6px 0 10px; } .mt { margin-top: 14px; } .msg { color: var(--gold); min-height: 1.2em; }
 @media (max-width: 1000px) { .split.comp { grid-template-columns: 1fr; } .game { grid-template-rows: auto minmax(0, 1fr) 340px; } .dock { grid-template-columns: 1fr; } }
+
+/* ---- map maker ---- */
+.mmlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 8px; }
+.mmcard { display: grid; grid-template-columns: 120px 1fr; gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; align-items: center; }
+.mmprev { background: #101b19; border-radius: 6px; height: 110px; display: grid; place-items: center; overflow: hidden; }
+.mmthumb { width: 100%; height: 100%; } .mmempty { color: var(--muted); }
+.mmcinfo b { font-family: var(--head); font-size: 16px; } .mmcinfo small.mine { color: var(--gold); }
+.mmgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+.mmboard { background: #101b19; border: 1px solid var(--line); border-radius: 8px; height: calc(100vh - 110px); min-height: 420px; }
+#mmboard { width: 100%; height: 100%; display: block; user-select: none; }
+.mmside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-height: calc(100vh - 110px); overflow: auto; }
+.mmside .field { margin: 0 0 10px; }
+.mcell { cursor: pointer; } .mcell:hover polygon:first-of-type { stroke: var(--gold); }
+.voidp { fill: #0d1816; stroke: #263a35; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.srcp { fill: none; stroke: var(--gold); stroke-width: 4; pointer-events: none; }
+.mmlink { stroke-width: 2.5; stroke-dasharray: 3 6; stroke-linecap: round; pointer-events: none; opacity: .8; }
+.mmlink.b { stroke: var(--blu); } .mmlink.r { stroke: var(--red); }
+.palg h4 { margin: 10px 0 4px; font-size: 13px; color: var(--muted); font-family: var(--body); text-transform: uppercase; letter-spacing: .6px; }
+.pal { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.pal button { display: flex; align-items: center; gap: 7px; text-align: left; padding: 5px 8px; font-size: 13px; }
+.pal button i { flex: none; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, .35); }
+.pal button i.voidsw { background: #0d1816; border-style: dashed; }
+.tinfo { margin-top: 10px; padding: 8px 10px; background: rgba(0, 0, 0, .2); border-radius: 6px; font-size: 13px; } .tinfo p { margin: 4px 0 0; color: var(--muted); }
+.flow { background: #35310f; border: 1px solid var(--gold); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; } .flow p { margin: 4px 0; }
+.spawns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.spawn { padding: 2px 10px; border-radius: 10px; font-weight: 600; border: 1px solid var(--line); background: #0f1a18; }
+.spawn.ok { border-color: var(--ok); } .spawn.bad { border-color: #ef6b5b; }
+.errs { margin: 8px 0 0; padding-left: 18px; color: #ef9a8e; font-size: 13px; } .okline { color: var(--ok); margin: 8px 0 0; }
+.hint.small { font-size: 12px; margin: 8px 0 0; }
+@media (max-width: 1000px) { .mmgrid { grid-template-columns: 1fr; } .mmboard { height: 70vh; } .mmside { max-height: none; } }

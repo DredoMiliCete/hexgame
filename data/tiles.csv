@@ -1,17 +1,19 @@
-,,,,
-,abbreviation,tile,tile visual description,tile description
-,BS,Blu Start,deep blue,"represent the blu start zone, it is where blu heroes are placed at the start of the game and where they can respawn during the game"
-,RS,Red Start,deep red,"same as Blu Start, but for Red"
-,BN,Blu Normal,mix of blue and green,"no special effects, are part of the Blu territory"
-,RN,Red Normal,mix of red and green,"same as Blu Normal, but for Red"
-,MM,Middle,deep green,"no special effects, are  not part of any territory, normally divide the Red and Blu territory"
-,CP,Control Point,purple with a star,entities here cannot perform any action apart from move. is part of the Control Victory
-,MP,Money Point,yellow with a dollar sign,"end of a round, an entity here gains 1 money. is part of the Monetary Victory"
-,BT,Blu Teleport,purple with a blu arrow pointing at a edge direction,this is adjacent to the first Blu Teleport or Blu Anchor tile that appears directly in the direction the arrow points to (the arrow points at the edges). part of Blu territory
-,RT,Red Teleport,purple with a red arrow pointing at a edge direction,"same as Blu Teleport, but for Red"
-,BA,Blu Anchor,purple with a blu dot,"no special effects. part of Blu Territory. from its POV, does NOT count as adjacent to a Blu Teleport that points to it (only in the Blu Teleport's POV does it count)"
-,BR,Red Anchor,purple with a red dot,"same as Blu Anchor, but for Red"
-,WW,Wall,gray,entities cannot attack through or move to or through this tile. blocks lines of sight
-,,Void,nothing/background color/black,"absence of a tile, does not even count as a tile. nothing can go through or into it, even more strict than a Wall"
-,HG,High Ground tile,dark green with a gray arrow pointing at a real direction,a ranged entity here (ranged means reach 2 or greater) has +1 Reach and can attack through 1 wall (not more than 1) when attacking in the direction the arrows point to. entities can only enter this tile via the direction the arrow does not point to
-,HT,Heal Tile,lime with a dark green cross,"whenever an entity passes or ends its move in this, heal it for 1. end of the round, heal the entity here for 2"
+,,,,,
+,abbreviation,tile,tile visual description,tile description,territory of
+,BS,Blu Start,deep blue,"represent the blu start zone, it is where blu heroes are placed at the start of the game and where they can respawn during the game",BLU
+,RS,Red Start,deep red,"same as Blu Start, but for Red",RED
+,BN,Blu Normal,mix of blue and green,"no special effects, are part of the Blu territory",BLU
+,RN,Red Normal,mix of red and green,"same as Blu Normal, but for Red",RED
+,MM,Middle,deep green,"no special effects, are  not part of any territory, normally divide the Red and Blu territory",none
+,CP,Control Point,purple with a star,entities here cannot perform any action apart from move. is part of the Control Victory,none
+,MP,Money Point,yellow with a dollar sign,"end of a round, an entity here gains 1 money. is part of the Monetary Victory. they count as being part of the territory of tiles next to it (if next to a BLU tile, then BLU territory, if next to a RED tile, then RED territory, if neither, then not part of any territory)",ADJACENT
+,BT,Blu Teleport,purple with a blu arrow pointing at a edge direction,this is adjacent to the first Blu Teleport or Blu Anchor tile that appears directly in the direction the arrow points to (the arrow points at the edges). part of Blu territory,BLU
+,RT,Red Teleport,purple with a red arrow pointing at a edge direction,"same as Blu Teleport, but for Red",RED
+,BA,Blu Anchor,purple with a blu dot,"no special effects. part of Blu Territory. from its POV, does NOT count as adjacent to a Blu Teleport that points to it (only in the Blu Teleport's POV does it count)",BLU
+,RA,Red Anchor,purple with a red dot,"same as Blu Anchor, but for Red",RED
+,WW,Wall,gray,entities cannot attack through or move to or through this tile. blocks lines of sight. is a barrier tile.,none
+,,Void,nothing/background color/black,"absence of a tile, does not even count as a tile. nothing can go through or into it, even more strict than a Wall. is a barrier tile",none
+,HG,High Ground tile,dark green with a gray arrow pointing at a real direction,a ranged entity here (ranged means reach 2 or greater) has +1 Reach and can attack through 1 wall (not more than 1) when attacking in the direction the arrows point to. entities can only enter this tile via the direction the arrow does not point to,ADJACENT
+,HT,Heal Tile,lime with a dark green cross,"whenever an entity passes or ends its move in this, heal it for 1. end of the round, heal the entity here for 2",ADJACENT
+,WB,Wood Box,brown with light brown stripes,"counts as a wall. is NOT a barrier tile. can be attacked, and has 1 HP. when HP is 0 or less, this til becomes a normal tile of the territory of the adjacent tiles",none
+,SB,Steel Box,light gray with dark  gray stripes,"same as a Wood Box tile, but has 3 HP instead of 1.",none
