@@ -2,9 +2,11 @@
 import { TOKENS } from './tokens.js';
 const cache = new Map();
 let listener = null;
+let bust = ''; // cache-buster added after a reset, so changed image files are fetched again
 export const onAssetLoad = (fn) => { listener = fn; };
-export function probe(path) { // returns the path once it is known to load, else null
-  const s = cache.get(path);
+export function resetImageCache() { cache.clear(); bust = '?v=' + Date.now(); listener?.(); }
+export function probe(rawPath) { // returns the path once it is known to load, else null
+  const path = rawPath + bust; const s = cache.get(path);
   if (s === 'ok') return path;
   if (s) return null;
   cache.set(path, 'loading');

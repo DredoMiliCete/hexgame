@@ -14,10 +14,10 @@ const GROUPS = [
   ['Spawn & territory', ['BS', 'RS', 'BN', 'RN', 'MM']],
   ['Objectives', ['CP', 'MP']],
   ['Teleports & anchors', ['BT', 'BA', 'RT', 'RA']],
-  ['Terrain', ['WW', 'HG', 'HT']],
+  ['Terrain', ['WW', 'WB', 'SB', 'HG', 'HT']],
 ];
 const LABEL = { BS: 'Blu Spawn', RS: 'Red Spawn', BN: 'Blu Normal', RN: 'Red Normal', MM: 'Middle', CP: 'Control Point', MP: 'Money Point',
-  BT: 'Blu Teleport', RT: 'Red Teleport', BA: 'Blu Anchor', RA: 'Red Anchor', WW: 'Wall', HG: 'High Ground', HT: 'Heal Tile' };
+  BT: 'Blu Teleport', RT: 'Red Teleport', BA: 'Blu Anchor', RA: 'Red Anchor', WW: 'Wall', WB: 'Wood Box', SB: 'Steel Box', HG: 'High Ground', HT: 'Heal Tile' };
 const COLOR_NAME = { B: 'Blu', R: 'Red' };
 const head = (title, extra = '') => `<div class="pagehead"><button data-back>Back</button><h2>${title}</h2>${extra}</div>`;
 

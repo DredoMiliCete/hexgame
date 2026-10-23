@@ -128,7 +128,19 @@ export const HEROES = [
     "name": "Drink and Shoot",
     "cost": null,
     "passive": true,
-    "text": "Sailor may perform an extra free attack each round. Sailor's attack target random enemy entities that are able to be targetted."
+    "text": "Sailor may perform an extra free attack each round. All of Sailor's attack target random enemy entities that are able to be targetted."
+   },
+   {
+    "name": "Cheers",
+    "cost": 0,
+    "passive": false,
+    "text": "Both Sailor's and an adjacent allied entity's next attack does 1 more damage. *(once per round)*"
+   },
+   {
+    "name": "Metal Leg",
+    "cost": 1,
+    "passive": false,
+    "text": "Attack for 4 damage an adjacent enemy troop. Until Sailor dies, he has only 2 Move. *(once per life)*"
    }
   ]
  },
@@ -172,7 +184,7 @@ export const HEROES = [
   "num": "06/20",
   "nick": "jozze",
   "image": "jozze.png",
-  "blurb": "maybe someone that wants to fight but pushes the team up?",
+  "blurb": "maybe someone that wants to fight but pushes the team up? FOREIGN BOXER",
   "class": "Duelist",
   "subrole": "Movement",
   "id": "monkey",
@@ -180,7 +192,7 @@ export const HEROES = [
   "implemented": true,
   "hp": 6,
   "move": 5,
-  "atk": 3,
+  "atk": 2,
   "reach": 1,
   "ap": 2,
   "abilities": [
@@ -189,6 +201,18 @@ export const HEROES = [
     "cost": 2,
     "passive": false,
     "text": "Place this in a free tile 2 spaces away in a straight line. Then, deal 2 damage to one adjacent enemy entity, and stun this."
+   },
+   {
+    "name": "Kick Punch Special",
+    "cost": null,
+    "passive": true,
+    "text": "Monkey may perform any amount of attack actions during a turn (action point cost must still be paid)."
+   },
+   {
+    "name": "Last Stand",
+    "cost": null,
+    "passive": true,
+    "text": "If Monkey is at exactly 1 HP, his first attack action each turn is free."
    }
   ]
  },
@@ -392,7 +416,7 @@ export const HEROES = [
     "name": "Snow Cone (0 Ap)",
     "cost": 0,
     "passive": false,
-    "text": "Heal an allied entity within reach by 4. *(once per round)*"
+    "text": "Heal an allied entity within reach or herself by 4. *(once per round)*"
    },
    {
     "name": "Mr. Snow",
@@ -536,7 +560,19 @@ export const HEROES = [
     "name": "Place Smoke",
     "cost": 1,
     "passive": false,
-    "text": "Create a \"Smoke\" in an adjacent spot. If you have more three or more \"Smokes\" on the board, remove one by one until you have only two."
+    "text": "Create a \"Smoke\" in an adjacent spot or this spot. If you have more three or more \"Smokes\" on the board, remove one by one until you have only two."
+   },
+   {
+    "name": "Consume Fumes",
+    "cost": 1,
+    "passive": false,
+    "text": "Remove all your \"Smokes\" from the board. Until the end of the round, Cigar's attacks deal 1 more damage for every \"Smoke\" removed this way."
+   },
+   {
+    "name": "Lung Resist",
+    "cost": null,
+    "passive": true,
+    "text": "If an effect would make Cigar unpreppared, keep Cigar preppared (the rest of the effect will still apply). At the end of the round, Cigar takes 1 unpreventable damage."
    }
   ]
  },
@@ -589,76 +625,102 @@ export const HEROES = [
   "abilities": []
  }
 ];
-export const MAPS = {"Pride Map": [{"x": 0, "y": 0, "t": "BT", "tx": 8, "ty": 4}, {"x": 1, "y": 0, "t": "BN"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 3, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "WW"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 2, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BS"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 5, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "RN"}, {"x": 1, "y": 2, "t": "MM"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BS"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "RN"}, {"x": 1, "y": 3, "t": "MP"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "MM"}, {"x": 4, "y": 3, "t": "MM"}, {"x": 5, "y": 3, "t": "WW"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BN"}, {"x": 0, "y": 4, "t": "RT", "tx": 8, "ty": 8}, {"x": 1, "y": 4, "t": "RN"}, {"x": 2, "y": 4, "t": "WW"}, {"x": 3, "y": 4, "t": "MM"}, {"x": 4, "y": 4, "t": "CP"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BT", "tx": 0, "ty": 0}, {"x": 1, "y": 5, "t": "RN"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "WW"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "MM"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "MP"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 2, "y": 6, "t": "RS"}, {"x": 3, "y": 6, "t": "RS"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "RN"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "BN"}, {"x": 3, "y": 7, "t": "RS"}, {"x": 4, "y": 7, "t": "RS"}, {"x": 5, "y": 7, "t": "RS"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 5, "y": 8, "t": "RS"}, {"x": 6, "y": 8, "t": "RS"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RT", "tx": 0, "ty": 4}], "Greed Map": [{"x": 2, "y": 0, "t": "BS"}, {"x": 3, "y": 0, "t": "BS"}, {"x": 1, "y": 1, "t": "BT", "tx": 7, "ty": 4}, {"x": 2, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BN"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 5, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "MM"}, {"x": 1, "y": 2, "t": "MM"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 7, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "CP"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "BN"}, {"x": 4, "y": 3, "t": "WW"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BN"}, {"x": 8, "y": 3, "t": "BS"}, {"x": 1, "y": 4, "t": "MM"}, {"x": 2, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "MP"}, {"x": 4, "y": 4, "t": "WW"}, {"x": 5, "y": 4, "t": "BN"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BT", "tx": 1, "ty": 1}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BN"}, {"x": 1, "y": 5, "t": "RT", "tx": 7, "ty": 8}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "WW"}, {"x": 5, "y": 5, "t": "MP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "WW"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 9, "y": 5, "t": "WW"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "WW"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "MM"}, {"x": 9, "y": 6, "t": "MP"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "WW"}, {"x": 7, "y": 7, "t": "WW"}, {"x": 8, "y": 7, "t": "MM"}, {"x": 9, "y": 7, "t": "MM"}, {"x": 3, "y": 8, "t": "RS"}, {"x": 4, "y": 8, "t": "RS"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "RN"}, {"x": 7, "y": 8, "t": "RT", "tx": 1, "ty": 5}, {"x": 8, "y": 8, "t": "RN"}, {"x": 9, "y": 8, "t": "MP"}, {"x": 5, "y": 9, "t": "RS"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RN"}, {"x": 8, "y": 9, "t": "RN"}, {"x": 9, "y": 9, "t": "WW"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RS"}, {"x": 9, "y": 10, "t": "RN"}], "Lust Map": [{"x": 1, "y": 0, "t": "BT", "tx": 3, "ty": 1}, {"x": 0, "y": 1, "t": "BN"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BA"}, {"x": 0, "y": 2, "t": "BN"}, {"x": 1, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BS"}, {"x": 4, "y": 2, "t": "BS"}, {"x": 5, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "BT", "tx": 3, "ty": 4}, {"x": 4, "y": 3, "t": "BS"}, {"x": 5, "y": 3, "t": "BS"}, {"x": 6, "y": 3, "t": "BS"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "RN"}, {"x": 1, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "BT", "tx": 1, "ty": 3}, {"x": 4, "y": 4, "t": "BN"}, {"x": 5, "y": 4, "t": "BN"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BT", "tx": 11, "ty": 5}, {"x": 0, "y": 5, "t": "MP"}, {"x": 1, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "WW"}, {"x": 4, "y": 5, "t": "WW"}, {"x": 5, "y": 5, "t": "MM"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "BN"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 11, "y": 5, "t": "BA"}, {"x": 1, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "CP"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "BN"}, {"x": 11, "y": 6, "t": "BN"}, {"x": 1, "y": 7, "t": "RA"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "MM"}, {"x": 7, "y": 7, "t": "MM"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 9, "y": 7, "t": "WW"}, {"x": 11, "y": 7, "t": "BN"}, {"x": 12, "y": 7, "t": "MP"}, {"x": 3, "y": 8, "t": "RT", "tx": 1, "ty": 7}, {"x": 4, "y": 8, "t": "RN"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "WW"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RN"}, {"x": 9, "y": 8, "t": "RT", "tx": 11, "ty": 9}, {"x": 11, "y": 8, "t": "MM"}, {"x": 12, "y": 8, "t": "BN"}, {"x": 5, "y": 9, "t": "RS"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RS"}, {"x": 11, "y": 9, "t": "RT", "tx": 9, "ty": 8}, {"x": 12, "y": 9, "t": "MM"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RS"}, {"x": 9, "y": 10, "t": "RS"}, {"x": 11, "y": 10, "t": "RN"}, {"x": 12, "y": 10, "t": "RN"}, {"x": 9, "y": 11, "t": "RA"}, {"x": 11, "y": 11, "t": "RN"}, {"x": 12, "y": 11, "t": "RN"}, {"x": 11, "y": 12, "t": "RT", "tx": 9, "ty": 11}], "Gluttony Map": [{"x": 0, "y": 0, "t": "BT", "tx": 8, "ty": 4}, {"x": 1, "y": 0, "t": "BS"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "WW"}, {"x": 1, "y": 1, "t": "WW"}, {"x": 2, "y": 1, "t": "WW"}, {"x": 3, "y": 1, "t": "BS"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "MP"}, {"x": 1, "y": 2, "t": "BN"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "MM"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "MM"}, {"x": 4, "y": 3, "t": "BN"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 8, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "WW"}, {"x": 1, "y": 4, "t": "MP"}, {"x": 2, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "CP"}, {"x": 4, "y": 4, "t": "MM"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "WW"}, {"x": 8, "y": 4, "t": "BT", "tx": 0, "ty": 0}, {"x": 0, "y": 5, "t": "RT", "tx": 8, "ty": 9}, {"x": 1, "y": 5, "t": "WW"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "MM"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "CP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "MP"}, {"x": 8, "y": 5, "t": "WW"}, {"x": 0, "y": 6, "t": "RS"}, {"x": 1, "y": 6, "t": "RS"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "MM"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "MP"}, {"x": 4, "y": 8, "t": "RS"}, {"x": 5, "y": 8, "t": "RS"}, {"x": 6, "y": 8, "t": "WW"}, {"x": 7, "y": 8, "t": "WW"}, {"x": 8, "y": 8, "t": "WW"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RT", "tx": 0, "ty": 5}], "Envy Map": [{"x": 1, "y": 0, "t": "BS"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "BN"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 2, "y": 1, "t": "BS"}, {"x": 3, "y": 1, "t": "BN"}, {"x": 4, "y": 1, "t": "BN"}, {"x": 0, "y": 2, "t": "BT", "tx": 8, "ty": 6}, {"x": 1, "y": 2, "t": "BN"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BN"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "MM"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "BN"}, {"x": 4, "y": 3, "t": "WW"}, {"x": 5, "y": 3, "t": "WW"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "WW"}, {"x": 1, "y": 4, "t": "WW"}, {"x": 2, "y": 4, "t": "MP"}, {"x": 3, "y": 4, "t": "MM"}, {"x": 4, "y": 4, "t": "MM"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "BS"}, {"x": 8, "y": 4, "t": "BS"}, {"x": 0, "y": 5, "t": "RS"}, {"x": 1, "y": 5, "t": "RN"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "CP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "BN"}, {"x": 8, "y": 5, "t": "BS"}, {"x": 0, "y": 6, "t": "RT", "tx": 8, "ty": 10}, {"x": 1, "y": 6, "t": "RS"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "WW"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "WW"}, {"x": 8, "y": 6, "t": "BT", "tx": 0, "ty": 2}, {"x": 1, "y": 7, "t": "RS"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "MP"}, {"x": 5, "y": 7, "t": "WW"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 4, "y": 8, "t": "RN"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "RN"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RN"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RN"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RT", "tx": 0, "ty": 6}]};
+export const MAPS = {"Pride Map": [{"x": 0, "y": 0, "t": "BT", "tx": 8, "ty": 4}, {"x": 1, "y": 0, "t": "BN"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 3, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "WW"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 2, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BS"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 5, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "RN"}, {"x": 1, "y": 2, "t": "MM"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BS"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "RN"}, {"x": 1, "y": 3, "t": "MP"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "MM"}, {"x": 4, "y": 3, "t": "MM"}, {"x": 5, "y": 3, "t": "WW"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BN"}, {"x": 0, "y": 4, "t": "RT", "tx": 8, "ty": 8}, {"x": 1, "y": 4, "t": "RN"}, {"x": 2, "y": 4, "t": "WW"}, {"x": 3, "y": 4, "t": "MM"}, {"x": 4, "y": 4, "t": "CP"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BT", "tx": 0, "ty": 0}, {"x": 1, "y": 5, "t": "RN"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "WW"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "MM"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "MP"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 2, "y": 6, "t": "RS"}, {"x": 3, "y": 6, "t": "RS"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "RN"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "BN"}, {"x": 3, "y": 7, "t": "RS"}, {"x": 4, "y": 7, "t": "RS"}, {"x": 5, "y": 7, "t": "RS"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 5, "y": 8, "t": "RS"}, {"x": 6, "y": 8, "t": "RS"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RT", "tx": 0, "ty": 4}], "Greed Map": [{"x": 2, "y": 0, "t": "BS"}, {"x": 3, "y": 0, "t": "BS"}, {"x": 1, "y": 1, "t": "BT", "tx": 7, "ty": 4}, {"x": 2, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BN"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 5, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "MM"}, {"x": 1, "y": 2, "t": "MM"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 7, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "CP"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "BN"}, {"x": 4, "y": 3, "t": "WW"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BN"}, {"x": 8, "y": 3, "t": "BS"}, {"x": 1, "y": 4, "t": "MM"}, {"x": 2, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "MP"}, {"x": 4, "y": 4, "t": "WW"}, {"x": 5, "y": 4, "t": "BN"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BT", "tx": 1, "ty": 1}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BN"}, {"x": 1, "y": 5, "t": "RT", "tx": 7, "ty": 8}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "WW"}, {"x": 5, "y": 5, "t": "MP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "WW"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 9, "y": 5, "t": "WW"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "WW"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "MM"}, {"x": 9, "y": 6, "t": "MP"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "WW"}, {"x": 7, "y": 7, "t": "WW"}, {"x": 8, "y": 7, "t": "MM"}, {"x": 9, "y": 7, "t": "MM"}, {"x": 3, "y": 8, "t": "RS"}, {"x": 4, "y": 8, "t": "RS"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "RN"}, {"x": 7, "y": 8, "t": "RT", "tx": 1, "ty": 5}, {"x": 8, "y": 8, "t": "RN"}, {"x": 9, "y": 8, "t": "MP"}, {"x": 5, "y": 9, "t": "RS"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RN"}, {"x": 8, "y": 9, "t": "RN"}, {"x": 9, "y": 9, "t": "WW"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RS"}, {"x": 9, "y": 10, "t": "RN"}], "Lust Map": [{"x": 1, "y": 0, "t": "BT", "tx": 3, "ty": 1}, {"x": 0, "y": 1, "t": "BN"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 3, "y": 1, "t": "BA"}, {"x": 0, "y": 2, "t": "HT"}, {"x": 1, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BS"}, {"x": 4, "y": 2, "t": "BS"}, {"x": 5, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "BT", "tx": 3, "ty": 4}, {"x": 4, "y": 3, "t": "BS"}, {"x": 5, "y": 3, "t": "BS"}, {"x": 6, "y": 3, "t": "BS"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "RN"}, {"x": 1, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "BT", "tx": 1, "ty": 3}, {"x": 4, "y": 4, "t": "BN"}, {"x": 5, "y": 4, "t": "BN"}, {"x": 6, "y": 4, "t": "WW"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BT", "tx": 11, "ty": 5}, {"x": 0, "y": 5, "t": "MP"}, {"x": 1, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "WW"}, {"x": 4, "y": 5, "t": "WW"}, {"x": 5, "y": 5, "t": "MM"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "BN"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 11, "y": 5, "t": "BA"}, {"x": 1, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "CP"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "BN"}, {"x": 11, "y": 6, "t": "BN"}, {"x": 1, "y": 7, "t": "RA"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "MM"}, {"x": 7, "y": 7, "t": "MM"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 9, "y": 7, "t": "WW"}, {"x": 11, "y": 7, "t": "BN"}, {"x": 12, "y": 7, "t": "MP"}, {"x": 3, "y": 8, "t": "RT", "tx": 1, "ty": 7}, {"x": 4, "y": 8, "t": "RN"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "WW"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RN"}, {"x": 9, "y": 8, "t": "RT", "tx": 11, "ty": 9}, {"x": 11, "y": 8, "t": "MM"}, {"x": 12, "y": 8, "t": "BN"}, {"x": 5, "y": 9, "t": "RS"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RS"}, {"x": 11, "y": 9, "t": "RT", "tx": 9, "ty": 8}, {"x": 12, "y": 9, "t": "MM"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RS"}, {"x": 9, "y": 10, "t": "RS"}, {"x": 11, "y": 10, "t": "RN"}, {"x": 12, "y": 10, "t": "HT"}, {"x": 9, "y": 11, "t": "RA"}, {"x": 11, "y": 11, "t": "RN"}, {"x": 12, "y": 11, "t": "RN"}, {"x": 11, "y": 12, "t": "RT", "tx": 9, "ty": 11}], "Gluttony Map": [{"x": 0, "y": 0, "t": "BT", "tx": 8, "ty": 4}, {"x": 1, "y": 0, "t": "BS"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "WW"}, {"x": 1, "y": 1, "t": "WW"}, {"x": 2, "y": 1, "t": "WW"}, {"x": 3, "y": 1, "t": "BS"}, {"x": 4, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "MP"}, {"x": 1, "y": 2, "t": "BN"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "MM"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "MM"}, {"x": 4, "y": 3, "t": "BN"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 8, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "WW"}, {"x": 1, "y": 4, "t": "MP"}, {"x": 2, "y": 4, "t": "MM"}, {"x": 3, "y": 4, "t": "CP"}, {"x": 4, "y": 4, "t": "MM"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "WW"}, {"x": 8, "y": 4, "t": "BT", "tx": 0, "ty": 0}, {"x": 0, "y": 5, "t": "RT", "tx": 8, "ty": 9}, {"x": 1, "y": 5, "t": "WW"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "MM"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "CP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "MP"}, {"x": 8, "y": 5, "t": "WW"}, {"x": 0, "y": 6, "t": "RS"}, {"x": 1, "y": 6, "t": "RS"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "MM"}, {"x": 8, "y": 6, "t": "MM"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "MP"}, {"x": 4, "y": 8, "t": "RS"}, {"x": 5, "y": 8, "t": "RS"}, {"x": 6, "y": 8, "t": "WW"}, {"x": 7, "y": 8, "t": "WW"}, {"x": 8, "y": 8, "t": "WW"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RT", "tx": 0, "ty": 5}], "Envy Map": [{"x": 1, "y": 0, "t": "BS"}, {"x": 2, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "BN"}, {"x": 1, "y": 1, "t": "BN"}, {"x": 2, "y": 1, "t": "BS"}, {"x": 3, "y": 1, "t": "BN"}, {"x": 4, "y": 1, "t": "BN"}, {"x": 0, "y": 2, "t": "BT", "tx": 8, "ty": 6}, {"x": 1, "y": 2, "t": "BN"}, {"x": 2, "y": 2, "t": "BN"}, {"x": 3, "y": 2, "t": "BN"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BN"}, {"x": 0, "y": 3, "t": "MM"}, {"x": 1, "y": 3, "t": "MM"}, {"x": 2, "y": 3, "t": "MM"}, {"x": 3, "y": 3, "t": "BN"}, {"x": 4, "y": 3, "t": "WW"}, {"x": 5, "y": 3, "t": "WW"}, {"x": 6, "y": 3, "t": "BN"}, {"x": 7, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "WW"}, {"x": 1, "y": 4, "t": "WW"}, {"x": 2, "y": 4, "t": "MP"}, {"x": 3, "y": 4, "t": "MM"}, {"x": 4, "y": 4, "t": "MM"}, {"x": 5, "y": 4, "t": "MM"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "BS"}, {"x": 8, "y": 4, "t": "BS"}, {"x": 0, "y": 5, "t": "RS"}, {"x": 1, "y": 5, "t": "RN"}, {"x": 2, "y": 5, "t": "RN"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "MM"}, {"x": 5, "y": 5, "t": "CP"}, {"x": 6, "y": 5, "t": "MM"}, {"x": 7, "y": 5, "t": "BN"}, {"x": 8, "y": 5, "t": "BS"}, {"x": 0, "y": 6, "t": "RT", "tx": 8, "ty": 10}, {"x": 1, "y": 6, "t": "RS"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "RN"}, {"x": 4, "y": 6, "t": "WW"}, {"x": 5, "y": 6, "t": "MM"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "WW"}, {"x": 8, "y": 6, "t": "BT", "tx": 0, "ty": 2}, {"x": 1, "y": 7, "t": "RS"}, {"x": 2, "y": 7, "t": "RS"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "MP"}, {"x": 5, "y": 7, "t": "WW"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "WW"}, {"x": 4, "y": 8, "t": "RN"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "RN"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RN"}, {"x": 6, "y": 9, "t": "RS"}, {"x": 7, "y": 9, "t": "RS"}, {"x": 8, "y": 9, "t": "RN"}, {"x": 7, "y": 10, "t": "RS"}, {"x": 8, "y": 10, "t": "RT", "tx": 0, "ty": 6}], "Sloth Map": [{"x": 0, "y": 0, "t": "MM"}, {"x": 1, "y": 0, "t": "MM"}, {"x": 2, "y": 0, "t": "BN"}, {"x": 3, "y": 0, "t": "BT", "tx": 11, "ty": 4}, {"x": 4, "y": 0, "t": "BN"}, {"x": 5, "y": 0, "t": "BN"}, {"x": 6, "y": 0, "t": "BN"}, {"x": 7, "y": 0, "t": "WW"}, {"x": 8, "y": 0, "t": "BN"}, {"x": 9, "y": 0, "t": "BS"}, {"x": 10, "y": 0, "t": "BS"}, {"x": 0, "y": 1, "t": "MM"}, {"x": 1, "y": 1, "t": "CP"}, {"x": 2, "y": 1, "t": "MM"}, {"x": 3, "y": 1, "t": "BN"}, {"x": 4, "y": 1, "t": "BN"}, {"x": 5, "y": 1, "t": "BN"}, {"x": 6, "y": 1, "t": "BN"}, {"x": 7, "y": 1, "t": "WW"}, {"x": 8, "y": 1, "t": "BN"}, {"x": 9, "y": 1, "t": "BS"}, {"x": 10, "y": 1, "t": "BS"}, {"x": 11, "y": 1, "t": "BS"}, {"x": 0, "y": 2, "t": "RN"}, {"x": 1, "y": 2, "t": "MM"}, {"x": 2, "y": 2, "t": "MM"}, {"x": 3, "y": 2, "t": "WW"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "WW"}, {"x": 6, "y": 2, "t": "BN"}, {"x": 7, "y": 2, "t": "BN"}, {"x": 8, "y": 2, "t": "BN"}, {"x": 9, "y": 2, "t": "BN"}, {"x": 10, "y": 2, "t": "BS"}, {"x": 11, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "RT", "tx": 4, "ty": 11}, {"x": 1, "y": 3, "t": "RN"}, {"x": 2, "y": 3, "t": "WW"}, {"x": 3, "y": 3, "t": "WW"}, {"x": 4, "y": 3, "t": "BN"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "WW"}, {"x": 7, "y": 3, "t": "BN"}, {"x": 8, "y": 3, "t": "BN"}, {"x": 9, "y": 3, "t": "BN"}, {"x": 10, "y": 3, "t": "WW"}, {"x": 11, "y": 3, "t": "WW"}, {"x": 0, "y": 4, "t": "RN"}, {"x": 1, "y": 4, "t": "RN"}, {"x": 2, "y": 4, "t": "RN"}, {"x": 3, "y": 4, "t": "RN"}, {"x": 4, "y": 4, "t": "HG", "hg": ["-", "-"]}, {"x": 5, "y": 4, "t": "BN"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BN"}, {"x": 10, "y": 4, "t": "BN"}, {"x": 11, "y": 4, "t": "BA"}, {"x": 0, "y": 5, "t": "RN"}, {"x": 1, "y": 5, "t": "RN"}, {"x": 2, "y": 5, "t": "WW"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "RN"}, {"x": 5, "y": 5, "t": "MM"}, {"x": 6, "y": 5, "t": "BN"}, {"x": 7, "y": 5, "t": "BN"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 9, "y": 5, "t": "BN"}, {"x": 10, "y": 5, "t": "BN"}, {"x": 11, "y": 5, "t": "BN"}, {"x": 0, "y": 6, "t": "RN"}, {"x": 1, "y": 6, "t": "RN"}, {"x": 2, "y": 6, "t": "RN"}, {"x": 3, "y": 6, "t": "WW"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "MM"}, {"x": 7, "y": 6, "t": "BN"}, {"x": 8, "y": 6, "t": "WW"}, {"x": 9, "y": 6, "t": "HG", "hg": ["-", "0"]}, {"x": 10, "y": 6, "t": "BN"}, {"x": 11, "y": 6, "t": "BN"}, {"x": 0, "y": 7, "t": "WW"}, {"x": 1, "y": 7, "t": "WW"}, {"x": 2, "y": 7, "t": "RN"}, {"x": 3, "y": 7, "t": "RN"}, {"x": 4, "y": 7, "t": "RN"}, {"x": 5, "y": 7, "t": "RN"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "MM"}, {"x": 8, "y": 7, "t": "BN"}, {"x": 9, "y": 7, "t": "WW"}, {"x": 10, "y": 7, "t": "BN"}, {"x": 11, "y": 7, "t": "BN"}, {"x": 0, "y": 8, "t": "RN"}, {"x": 1, "y": 8, "t": "RN"}, {"x": 2, "y": 8, "t": "RN"}, {"x": 3, "y": 8, "t": "RN"}, {"x": 4, "y": 8, "t": "RN"}, {"x": 5, "y": 8, "t": "RN"}, {"x": 6, "y": 8, "t": "WW"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "MM"}, {"x": 9, "y": 8, "t": "BN"}, {"x": 10, "y": 8, "t": "MP"}, {"x": 11, "y": 8, "t": "BN"}, {"x": 0, "y": 9, "t": "RS"}, {"x": 1, "y": 9, "t": "RS"}, {"x": 2, "y": 9, "t": "RN"}, {"x": 3, "y": 9, "t": "RN"}, {"x": 4, "y": 9, "t": "RN"}, {"x": 5, "y": 9, "t": "RN"}, {"x": 6, "y": 9, "t": "HG", "hg": ["0", "-"]}, {"x": 7, "y": 9, "t": "WW"}, {"x": 8, "y": 9, "t": "RN"}, {"x": 9, "y": 9, "t": "WW"}, {"x": 10, "y": 9, "t": "BN"}, {"x": 11, "y": 9, "t": "BN"}, {"x": 0, "y": 10, "t": "RS"}, {"x": 1, "y": 10, "t": "RS"}, {"x": 2, "y": 10, "t": "RS"}, {"x": 3, "y": 10, "t": "WW"}, {"x": 4, "y": 10, "t": "RN"}, {"x": 5, "y": 10, "t": "RN"}, {"x": 6, "y": 10, "t": "RN"}, {"x": 7, "y": 10, "t": "RN"}, {"x": 8, "y": 10, "t": "MP"}, {"x": 9, "y": 10, "t": "RN"}, {"x": 10, "y": 10, "t": "WW"}, {"x": 11, "y": 10, "t": "BN"}, {"x": 1, "y": 11, "t": "RS"}, {"x": 2, "y": 11, "t": "RS"}, {"x": 3, "y": 11, "t": "WW"}, {"x": 4, "y": 11, "t": "RA"}, {"x": 5, "y": 11, "t": "RN"}, {"x": 6, "y": 11, "t": "RN"}, {"x": 7, "y": 11, "t": "RN"}, {"x": 8, "y": 11, "t": "RN"}, {"x": 9, "y": 11, "t": "RN"}, {"x": 10, "y": 11, "t": "RN"}, {"x": 11, "y": 11, "t": "MM"}], "Wrath Map": [{"x": 1, "y": 0, "t": "WW"}, {"x": 2, "y": 0, "t": "RA"}, {"x": 3, "y": 0, "t": "MM"}, {"x": 0, "y": 1, "t": "RN"}, {"x": 1, "y": 1, "t": "RT", "tx": 2, "ty": 0}, {"x": 2, "y": 1, "t": "WW"}, {"x": 3, "y": 1, "t": "MM"}, {"x": 4, "y": 1, "t": "BN"}, {"x": 0, "y": 2, "t": "RN"}, {"x": 1, "y": 2, "t": "RN"}, {"x": 2, "y": 2, "t": "SB"}, {"x": 3, "y": 2, "t": "SB"}, {"x": 4, "y": 2, "t": "BN"}, {"x": 5, "y": 2, "t": "BN"}, {"x": 6, "y": 2, "t": "BN"}, {"x": 7, "y": 2, "t": "BS"}, {"x": 8, "y": 2, "t": "BS"}, {"x": 0, "y": 3, "t": "RS"}, {"x": 1, "y": 3, "t": "RN"}, {"x": 2, "y": 3, "t": "SB"}, {"x": 3, "y": 3, "t": "CP"}, {"x": 4, "y": 3, "t": "SB"}, {"x": 5, "y": 3, "t": "BN"}, {"x": 6, "y": 3, "t": "SB"}, {"x": 7, "y": 3, "t": "HG", "hg": ["-", "0"]}, {"x": 8, "y": 3, "t": "BS"}, {"x": 9, "y": 3, "t": "BS"}, {"x": 0, "y": 4, "t": "RS"}, {"x": 1, "y": 4, "t": "RS"}, {"x": 2, "y": 4, "t": "RN"}, {"x": 3, "y": 4, "t": "SB"}, {"x": 4, "y": 4, "t": "SB"}, {"x": 5, "y": 4, "t": "WB"}, {"x": 6, "y": 4, "t": "BN"}, {"x": 7, "y": 4, "t": "BN"}, {"x": 8, "y": 4, "t": "BN"}, {"x": 9, "y": 4, "t": "BS"}, {"x": 10, "y": 4, "t": "BS"}, {"x": 1, "y": 5, "t": "RS"}, {"x": 2, "y": 5, "t": "RS"}, {"x": 3, "y": 5, "t": "RN"}, {"x": 4, "y": 5, "t": "RN"}, {"x": 5, "y": 5, "t": "RN"}, {"x": 6, "y": 5, "t": "WB"}, {"x": 7, "y": 5, "t": "MP"}, {"x": 8, "y": 5, "t": "BN"}, {"x": 9, "y": 5, "t": "BN"}, {"x": 10, "y": 5, "t": "BS"}, {"x": 2, "y": 6, "t": "RS"}, {"x": 3, "y": 6, "t": "RS"}, {"x": 4, "y": 6, "t": "RN"}, {"x": 5, "y": 6, "t": "RN"}, {"x": 6, "y": 6, "t": "HT"}, {"x": 7, "y": 6, "t": "WW"}, {"x": 8, "y": 6, "t": "WW"}, {"x": 9, "y": 6, "t": "WB"}, {"x": 10, "y": 6, "t": "WB"}, {"x": 6, "y": 7, "t": "RN"}, {"x": 7, "y": 7, "t": "RN"}, {"x": 8, "y": 7, "t": "RN"}, {"x": 9, "y": 7, "t": "RN"}, {"x": 10, "y": 7, "t": "RN"}, {"x": 7, "y": 8, "t": "RN"}, {"x": 8, "y": 8, "t": "RN"}, {"x": 9, "y": 8, "t": "RN"}, {"x": 10, "y": 8, "t": "MP"}, {"x": 11, "y": 8, "t": "RN"}, {"x": 9, "y": 9, "t": "RN"}, {"x": 10, "y": 9, "t": "RN"}, {"x": 11, "y": 9, "t": "RN"}]};
 export const TILE_INFO = {
  "BS": {
   "name": "Blu Start",
   "look": "deep blue",
-  "text": "represent the blu start zone, it is where blu heroes are placed at the start of the game and where they can respawn during the game"
+  "text": "represent the blu start zone, it is where blu heroes are placed at the start of the game and where they can respawn during the game",
+  "territory": "BLU"
  },
  "RS": {
   "name": "Red Start",
   "look": "deep red",
-  "text": "same as Blu Start, but for Red"
+  "text": "same as Blu Start, but for Red",
+  "territory": "RED"
  },
  "BN": {
   "name": "Blu Normal",
   "look": "mix of blue and green",
-  "text": "no special effects, are part of the Blu territory"
+  "text": "no special effects, are part of the Blu territory",
+  "territory": "BLU"
  },
  "RN": {
   "name": "Red Normal",
   "look": "mix of red and green",
-  "text": "same as Blu Normal, but for Red"
+  "text": "same as Blu Normal, but for Red",
+  "territory": "RED"
  },
  "MM": {
   "name": "Middle",
   "look": "deep green",
-  "text": "no special effects, are  not part of any territory, normally divide the Red and Blu territory"
+  "text": "no special effects, are  not part of any territory, normally divide the Red and Blu territory",
+  "territory": "NONE"
  },
  "CP": {
   "name": "Control Point",
   "look": "purple with a star",
-  "text": "entities here cannot perform any action apart from move. is part of the Control Victory"
+  "text": "entities here cannot perform any action apart from move. is part of the Control Victory",
+  "territory": "NONE"
  },
  "MP": {
   "name": "Money Point",
   "look": "yellow with a dollar sign",
-  "text": "end of a round, an entity here gains 1 money. is part of the Monetary Victory. they count as being part of the territory of tiles next to it (if next to a BLU tile, then BLU territory, if next to a RED tile, then RED territory, if neither, then not part of any territory)"
+  "text": "end of a round, an entity here gains 1 money. is part of the Monetary Victory. they count as being part of the territory of tiles next to it (if next to a BLU tile, then BLU territory, if next to a RED tile, then RED territory, if neither, then not part of any territory)",
+  "territory": "ADJACENT"
  },
  "BT": {
   "name": "Blu Teleport",
   "look": "purple with a blu arrow pointing at a edge direction",
-  "text": "this is adjacent to the first Blu Teleport or Blu Anchor tile that appears directly in the direction the arrow points to (the arrow points at the edges). part of Blu territory"
+  "text": "this is adjacent to the first Blu Teleport or Blu Anchor tile that appears directly in the direction the arrow points to (the arrow points at the edges). part of Blu territory",
+  "territory": "BLU"
  },
  "RT": {
   "name": "Red Teleport",
   "look": "purple with a red arrow pointing at a edge direction",
-  "text": "same as Blu Teleport, but for Red"
+  "text": "same as Blu Teleport, but for Red",
+  "territory": "RED"
  },
  "BA": {
   "name": "Blu Anchor",
   "look": "purple with a blu dot",
-  "text": "no special effects. part of Blu Territory. from its POV, does NOT count as adjacent to a Blu Teleport that points to it (only in the Blu Teleport's POV does it count)"
+  "text": "no special effects. part of Blu Territory. from its POV, does NOT count as adjacent to a Blu Teleport that points to it (only in the Blu Teleport's POV does it count)",
+  "territory": "BLU"
  },
  "RA": {
   "name": "Red Anchor",
   "look": "purple with a red dot",
-  "text": "same as Blu Anchor, but for Red"
+  "text": "same as Blu Anchor, but for Red",
+  "territory": "RED"
  },
  "WW": {
   "name": "Wall",
   "look": "gray",
-  "text": "entities cannot attack through or move to or through this tile. blocks lines of sight. is a barrier tile."
+  "text": "entities cannot attack through or move to or through this tile. blocks lines of sight. is a barrier tile.",
+  "territory": "NONE"
  },
  "HG": {
   "name": "High Ground tile",
   "look": "dark green with a gray arrow pointing at a real direction",
-  "text": "a ranged entity here (ranged means reach 2 or greater) has +1 Reach and can attack through 1 wall (not more than 1) when attacking in the direction the arrows point to. entities can only enter this tile via the direction the arrow does not point to"
+  "text": "a ranged entity here (ranged means reach 2 or greater) has +1 Reach and can attack through 1 wall (not more than 1) when attacking in the direction the arrows point to. entities can only enter this tile via the direction the arrow does not point to",
+  "territory": "ADJACENT"
  },
  "HT": {
   "name": "Heal Tile",
   "look": "lime with a dark green cross",
-  "text": "whenever an entity passes or ends its move in this, heal it for 1. end of the round, heal the entity here for 2"
+  "text": "whenever an entity passes or ends its move in this, heal it for 1. end of the round, heal the entity here for 2",
+  "territory": "ADJACENT"
+ },
+ "WB": {
+  "name": "Wood Box",
+  "look": "brown with light brown stripes",
+  "text": "counts as a wall. is NOT a barrier tile. can be attacked, and has 1 HP. when HP is 0 or less, this til becomes a normal tile of the territory of the adjacent tiles",
+  "territory": "NONE"
+ },
+ "SB": {
+  "name": "Steel Box",
+  "look": "light gray with dark  gray stripes",
+  "text": "same as a Wood Box tile, but has 3 HP instead of 1.",
+  "territory": "NONE"
  }
 };

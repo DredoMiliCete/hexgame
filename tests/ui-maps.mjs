@@ -9,6 +9,7 @@ Object.assign(globalThis, { window: dom.window, document: dom.window.document, r
 globalThis.Image = dom.window.Image; globalThis.localStorage = dom.window.localStorage;
 process.on('unhandledRejection', (e) => { console.error('UNHANDLED', e); process.exit(1); });
 await import('../js/main.js');
+const { MAPS } = await import('../js/data.js'); const NB = Object.keys(MAPS).length;
 const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
 const tick = () => new Promise((r) => setTimeout(r, 2));
 const ev = (el, type, init = {}) => el.dispatchEvent(new dom.window.MouseEvent(type, { bubbles: true, ...init }));
@@ -20,11 +21,11 @@ let n = 0; const ok = (m) => { n++; console.log('ok -', m); };
 
 // ---- list ----
 await click($('[data-go="maps"]'));
-assert.equal($$('.mmcard').length, 5); assert.equal($$('[data-del]').length, 0); assert.ok(document.body.textContent.includes('Pride Map')); ok('map list: 5 built-in maps, none deletable');
+assert.equal($$('.mmcard').length, NB); assert.equal($$('[data-del]').length, 0); assert.ok(document.body.textContent.includes('Pride Map')); ok('map list: all built-in maps, none deletable');
 
 // ---- new map: size, spawn rule ----
 await click($('[data-new]'));
-assert.equal($$('#mmboard .mcell').length, 144); assert.ok($('[data-act=save]').disabled); ok('new map: 12x12 board, Save disabled');
+assert.equal($$('#mmboard .mcell').length, 169); assert.ok($('[data-act=save]').disabled); ok('new map: 13x13 board, Save disabled');
 for (let x = 0; x < 7; x++) await put('BS', x, 0);
 assert.ok($('[data-act=save]').disabled); assert.ok($('.errs').textContent.includes('Red Spawn tiles: 0/7'));
 for (let x = 0; x < 6; x++) await put('RS', x, 9);
@@ -59,12 +60,12 @@ const name = $('#mmname'); name.value = 'UI Map'; name.dispatchEvent(new dom.win
 assert.ok($('.msg').textContent.includes('Saved "UI Map"')); assert.ok($('[data-act=delete]')); ok('saved a custom map');
 
 // ---- back to the list, built-in edit is a copy ----
-await click($('[data-back]')); assert.equal($$('.mmcard').length, 6); assert.equal($$('[data-del]').length, 1);
+await click($('[data-back]')); assert.equal($$('.mmcard').length, NB + 1); assert.equal($$('[data-del]').length, 1);
 const lustIdx = $$('.mmcard').findIndex((c) => c.textContent.includes('Lust Map'));
 await click($$('[data-edit]')[lustIdx]); assert.equal($$('#mmboard .mcell').length, 169, 'Lust Map is 13x13 so the grid expands'); assert.equal($('#mmname').value, 'Lust Map copy'); assert.ok(!$('[data-act=delete]')); assert.ok(!$('[data-act=save]').disabled);
 name.value = 'Pride Map'; $('#mmname').value = 'Pride Map'; await click($('[data-act=save]')); assert.ok($('.msg').textContent.includes('built-in')); ok('built-in maps open as copies; their names are reserved; larger maps keep their size');
 await click($('[data-back]')); // dirty? (no edits) -> back to list
-assert.equal($$('.mmcard').length, 6);
+assert.equal($$('.mmcard').length, NB + 1);
 
 // ---- the custom map is offered by the game modes and is playable ----
 await click($('[data-back]')); await click($$('[data-go]')[1]);
@@ -102,11 +103,11 @@ assert.ok(pregamePrompts > 5); ok(`pregame: ${pregamePrompts} move prompts, none
 
 // ---- delete a custom map ----
 await click($('[data-act=menu]')); // leave the game (confirm -> true)
-await click($('[data-go="maps"]')); await click($('[data-del]')); assert.equal($$('.mmcard').length, 5); assert.ok(!$$('.mmcard b').some((b) => b.textContent === 'UI Map')); ok('custom maps can be deleted');
+await click($('[data-go="maps"]')); await click($('[data-del]')); assert.equal($$('.mmcard').length, NB); assert.ok(!$$('.mmcard b').some((b) => b.textContent === 'UI Map')); ok('custom maps can be deleted');
 
 // ---- options: raise the size limit ----
 await click($('[data-back]')); await click($('[data-go="options"]'));
 $('#maxsize').value = '14'; await click($('#osave')); assert.ok($('.msg').textContent.includes('14×14'));
 await click($('[data-back]')); await click($('[data-go="maps"]')); await click($('[data-new]')); assert.equal($$('#mmboard .mcell').length, 196); ok('Options: bigger map size gives a bigger board');
-await click($('[data-back]')); await click($('[data-back]')); await click($('[data-go="options"]')); $('#maxsize').value = '9'; await click($('#osave')); assert.ok($('.msg').textContent.includes('whole number from 12')); ok('Options: values below 12 are rejected');
+await click($('[data-back]')); await click($('[data-back]')); await click($('[data-go="options"]')); $('#maxsize').value = '9'; await click($('#osave')); assert.ok($('.msg').textContent.includes('whole number from 13')); ok('Options: values below 13 are rejected');
 console.log(`\n${n} UI checks passed`); process.exit(0);

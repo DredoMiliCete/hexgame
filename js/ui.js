@@ -7,7 +7,7 @@ import { heroImage, tokenImage, tileImage, onAssetLoad } from './assets.js';
 import { heroColor, portrait, portraitById } from './colors.js';
 
 const S = 38;
-export const TILE_FILL = { BS: '#2f6fd0', RS: '#e0284f', BN: '#6aa957', RN: '#a39a39', MM: '#3f8a1c', WW: '#5e6264', BT: '#c68ad0', RT: '#c68ad0', BA: '#b6a0e0', RA: '#e0a0b0', CP: '#cf6bff', MP: '#ffc21a', HG: '#8d7b68', HT: '#7fd3b0' };
+export const TILE_FILL = { BS: '#2f6fd0', RS: '#e0284f', BN: '#6aa957', RN: '#a39a39', MM: '#3f8a1c', WW: '#5e6264', WB: '#8a5a2b', SB: '#9aa3a8', BT: '#c68ad0', RT: '#c68ad0', BA: '#b6a0e0', RA: '#e0a0b0', CP: '#cf6bff', MP: '#ffc21a', HG: '#8d7b68', HT: '#7fd3b0' };
 export const TILE_GLYPH = { CP: '★', MP: '$', BA: '⚓', RA: '⚓', HT: '+', HG: '▲' };
 const BLU = '#5a9bff', RED = '#ff6379', GOLD = '#f4c34f';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -40,7 +40,8 @@ export class GameView {
         <aside class="side" id="side1"></aside></div>
       <div class="dock" id="dock"><div class="info" id="info"></div>
         <div class="center"><div class="prompt" id="prompt"></div><div class="actions" id="actions"></div></div>
-        <div class="log" id="log"></div></div></div>`;
+        <div class="log" id="log"></div></div>
+      <div class="foot" id="foot"></div></div>`;
     this.$ = (id) => root.querySelector('#' + id);
     this.$('board').addEventListener('click', (ev) => this.onBoardClick(ev));
     this.uiClick = (ev) => this.onUiClick(ev); root.addEventListener('click', this.uiClick); // `root` outlives this view: destroy() must remove it
@@ -51,7 +52,7 @@ export class GameView {
   destroy() { this.dead = true; this.root.removeEventListener('click', this.uiClick); clearTimeout(this.sumTimer); this.pending = null; }
   attach(g) { this.g = g; this.render(); }
   render() { if (this.dead || this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g) this.draw(); }); }
-  draw() { this.drawHud(); this.drawSides(); this.drawBoard(); this.drawInfo(); this.drawActions(); this.drawSummary(); }
+  draw() { this.drawHud(); this.drawFoot(); this.drawSides(); this.drawBoard(); this.drawInfo(); this.drawActions(); this.drawSummary(); }
 
   // ---------- IO ----------
   makeIO() {
@@ -130,6 +131,8 @@ export class GameView {
   }
 
   // ---------- drawing ----------
+  // Top bar: Blu name + AP on the far left, Red on the far right; in the middle the control bar, flanked on each side by
+  // three VIP-kill balls (grey = no kill, team colour = kill) and the deposited money in gold.
   drawHud() {
     const g = this.g; const t = g.turn; const inRound = g.phase === 'round';
     const team = (i) => {
@@ -137,13 +140,21 @@ export class GameView {
       const total = Math.max(g.apStart[i], g.pool[i]);
       const gl = g.glovePool[i] ? ` <small>+${g.glovePool[i]} Glove</small>` : '';
       return `<div class="hudteam t${i} ${active ? 'active' : ''}"><div class="tn"><b>${TEAM_NAMES[i]}</b>${active ? '<span class="tag">playing</span>' : ''}${g.passed[i] ? '<span class="tag dim">passed</span>' : ''}</div>
-        <div class="apline" title="Action points left / gathered this round"><span class="apnum">${g.pool[i]}<small>/${total} AP</small>${gl}</span><span class="pips">${total <= 14 ? pips(g.pool[i], total) : ''}</span></div>
-        <div class="objs"><span title="Deposited money">$ ${g.money[i]}/${CONFIG.MONEY_TO_WIN}</span><span title="VIP kills">VIP kills ${g.vipKills[i]}/${CONFIG.VIP_KILLS_TO_WIN}</span></div></div>`;
+        <div class="apline" title="Action points left / gathered this round"><span class="apnum">${g.pool[i]}<small>/${total} AP</small>${gl}</span><span class="pips">${total <= 14 ? pips(g.pool[i], total) : ''}</span></div></div>`;
     };
-    const bar = (cls = '') => Array.from({ length: CONFIG.CONTROL_BAR }, (_, i) => `<i class="${i < 4 ? 'b' : i > 4 ? 'r' : 'n'}${i === g.tracker ? ' here' : ''}"></i>`).join('');
+    const balls = (i) => `<span class="vball" title="${TEAM_NAMES[i]} VIP kills: ${g.vipKills[i]}/${CONFIG.VIP_KILLS_TO_WIN}">${Array.from({ length: CONFIG.VIP_KILLS_TO_WIN }, (_, k) => `<i class="${k < g.vipKills[i] ? 'k' + i : ''}"></i>`).join('')}</span>`;
+    const money = (i) => `<span class="gold" title="${TEAM_NAMES[i]} deposited money">$ ${g.money[i]}<small>/${CONFIG.MONEY_TO_WIN}</small></span>`;
+    const bar = Array.from({ length: CONFIG.CONTROL_BAR }, (_, i) => `<i class="${i < 4 ? 'b' : i > 4 ? 'r' : 'n'}${i === g.tracker ? ' here' : ''}"></i>`).join('');
     const turn = inRound ? `<span class="turnpill t${t.team}">${TEAM_NAMES[t.team]}'s turn</span> ${t.first ? '<small>first turn: 1 action</small>' : `<span class="pips turnpips" title="AP used this turn">${pips(Math.min(t.spent, CONFIG.AP_PER_TURN), CONFIG.AP_PER_TURN)}</span>`}` : `<span class="phase">${esc(g.phase)}</span>`;
-    this.$('hud').innerHTML = `${team(0)}<div class="hudmid"><div class="rt">${g.round ? `Round ${g.round}` : 'Setup'} · ${turn}</div><div class="bar" title="Control bar (Blu left, Red right)">${bar()}</div></div>${team(1)}
-      <div class="hudbtns"><button data-act="rats" class="${this.showRats ? 'on' : ''}">Show Rat identities</button><button data-act="coords" class="${this.showCoords ? 'on' : ''}">Coords</button><button data-act="menu">Menu</button></div>`;
+    this.$('hud').innerHTML = `<div class="hudl">${team(0)}</div>
+      <div class="hudmid"><div class="objrow">${money(0)}${balls(0)}<span class="bar" title="Control bar (Blu left, Red right)">${bar}</span>${balls(1)}${money(1)}</div>
+        <div class="rt">${g.round ? `Round ${g.round}` : 'Setup'} · ${turn}</div></div>
+      <div class="hudr">${team(1)}</div>`;
+  }
+  // Menu options live at the bottom corners.
+  drawFoot() {
+    this.$('foot').innerHTML = `<div class="footl"><button data-act="menu">Menu</button><button data-act="coords" class="${this.showCoords ? 'on' : ''}">Coords</button></div>
+      <div class="footr"><button data-act="rats" class="${this.showRats ? 'on' : ''}">Show Rat identities</button></div>`;
   }
   chips(e) {
     const g = this.g; const c = [];
@@ -172,12 +183,13 @@ export class GameView {
     const P = (x, y) => toPixel(x, y, S);
     const xs = tiles.map((t) => P(t.x, t.y)[0]), ys = tiles.map((t) => P(t.x, t.y)[1]);
     const pad = S * 1.3, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) - x0 + pad, h = Math.max(...ys) - y0 + pad;
-    let out = `<defs><clipPath id="tokclip"><circle r="${S * 0.62}"/></clipPath><clipPath id="hexclip"><polygon points="${hex(0, 0, S - 2)}"/></clipPath></defs>`;
+    let out = `<defs><pattern id="wbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#8a5a2b"/><rect width="6" height="12" fill="#b98d58"/></pattern><pattern id="sbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#9aa3a8"/><rect width="6" height="12" fill="#6d777c"/></pattern><clipPath id="tokclip"><circle r="${S * 0.62}"/></clipPath><clipPath id="hexclip"><polygon points="${hex(0, 0, S - 2)}"/></clipPath></defs>`;
     for (const t of tiles) {
       const [cx, cy] = P(t.x, t.y); const hl = this.hl.has(key(t.x, t.y)); const img = tileImage(t.t);
-      out += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${t.x}" data-y="${t.y}" class="tile ${hl ? 'hl' : ''}"><title>${t.x},${t.y} ${esc(t.t)}</title><polygon points="${hex(0, 0, S - 2)}" fill="${TILE_FILL[t.t] || '#888'}" stroke="#2a2f31" stroke-width="3"/>`;
+      out += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${t.x}" data-y="${t.y}" class="tile ${hl ? 'hl' : ''}"><title>${t.x},${t.y} ${esc(t.t)}</title><polygon points="${hex(0, 0, S - 2)}" fill="${t.t === 'WB' ? 'url(#wbp)' : t.t === 'SB' ? 'url(#sbp)' : (TILE_FILL[t.t] || '#888')}" stroke="#2a2f31" stroke-width="3"/>`;
       if (img) out += `<image href="${img}" x="${-S}" y="${-S}" width="${2 * S}" height="${2 * S}" clip-path="url(#hexclip)" preserveAspectRatio="xMidYMid slice"/>`;
       out += tileDecor(t, P, !!img);
+      const bx = g.boxAt(t.x, t.y); if (bx) out += `<text class="badge" text-anchor="middle" dy=".35em">♥${bx.hp}</text>`;
       if (this.showCoords) out += `<text class="coord" text-anchor="middle" y="${S * 0.62}">${t.x},${t.y}</text>`;
       if (hl) out += `<polygon points="${hex(0, 0, S - 4)}" class="hlp"/>`;
       out += '</g>';

@@ -27,7 +27,7 @@ const IMPL = {
     D('club', 'Club Barrage', 1, async (g2, h, A) => {
       const t = await g2.pickEnt(g2.team(h), g2.attackTargets(h, { reach: 1 }).map((v) => v.ent), 'Club Barrage: choose a target (reach 1)'); if (!t) return;
       A.commit(); const X = g2.shieldsDestroyed[g2.team(h)];
-      await g2.dealDamage(t, 3 * X, src(g2, h)); g2.stun(h);
+      await g2.attack(h, t, 3 * X); g2.stun(h);
     }, { desc: 'Attack for 3 x (your Card Shields destroyed this round) with 1 Reach. Stun Vanish.', avail: (g2, h) => hasTargets(g2, h, 1) }),
   ],
   glove: (g, e) => [
@@ -61,7 +61,17 @@ const IMPL = {
   sailor: (g, e) => [
     D('freeatk', 'Drink and Shoot', 0, async (g2, h, A) => {
       const v = rand(g2.attackTargets(h)); if (!v) return; A.commit(); await g2.attack(h, v.ent);
-    }, { once: true, desc: 'Free extra attack each round (random valid target).', avail: (g2, h) => hasTargets(g2, h) }),
+    }, { once: true, desc: 'Free extra attack each round. All of Sailor\'s attacks hit a random valid enemy entity.', avail: (g2, h) => hasTargets(g2, h) }),
+    D('cheers', 'Cheers', 0, async (g2, h, A) => {
+      const t = await g2.pickEnt(g2.team(h), g2.adjacentAllies(h).filter((x) => !x.snow), 'Cheers: choose an adjacent allied entity'); if (!t) return;
+      A.commit(); h.nextAtk = (h.nextAtk || 0) + 1; t.nextAtk = (t.nextAtk || 0) + 1; g2.log(`Cheers! Sailor's and ${t.name}'s next attack deal 1 more damage (until the end of the round).`);
+    }, { once: true, desc: "Sailor's and an adjacent ally's next attack does 1 more damage (lasts until end of round).",
+      avail: (g2, h) => (g2.adjacentAllies(h).some((x) => !x.snow) ? null : 'No adjacent allied entity') }),
+    D('metal', 'Metal Leg', 1, async (g2, h, A) => {
+      const v = rand(g2.attackTargets(h, { reach: 1 })); if (!v) return;
+      A.commit(); h.lifeUsed.metal = true; h.moveSet = 2; g2.log('Metal Leg: Sailor has only 2 Move until he dies.'); await g2.attack(h, v.ent, 4);
+    }, { desc: 'Attack a random adjacent enemy for 4. Sailor has only 2 Move until he dies. Once per life.',
+      avail: (g2, h) => (h.lifeUsed.metal ? 'Once per life' : hasTargets(g2, h, 1)) }),
   ],
   squeak: (g, e) => [
     D('ratio', 'Ratio', 2, async (g2, h, A) => {
@@ -165,15 +175,22 @@ const IMPL = {
   ],
   cigar: (g, e) => [
     D('smoke', 'Place Smoke', 1, async (g2, h, A) => {
-      const tiles = g2.neighbors(h.x, h.y).filter(([x, y]) => !g2.isWall(x, y) && !g2.smokeAt(x, y)).map(([x, y]) => ({ x, y }));
-      const t = await g2.pickTile(g2.team(h), tiles, 'Place Smoke on an adjacent tile'); if (!t) return;
+      const tiles = [[h.x, h.y], ...g2.neighbors(h.x, h.y)].filter(([x, y]) => !g2.isWall(x, y) && !g2.smokeAt(x, y)).map(([x, y]) => ({ x, y }));
+      const t = await g2.pickTile(g2.team(h), tiles, 'Place Smoke on an adjacent tile or on Cigar\'s own tile'); if (!t) return;
       A.commit(); g2.smokes.push({ x: t.x, y: t.y, team: h.owner, seq: ++g2.seq });
-      let mine = g2.smokes.filter((s) => s.team === h.owner);
+      let mine = g2.smokes.filter((s2) => s2.team === h.owner);
       while (mine.length > 2) {
         const c = await g2.pickTile(h.owner, mine, 'Too many Smokes: choose one to remove', { cancel: false });
-        g2.smokes = g2.smokes.filter((s) => !(s.x === c.x && s.y === c.y)); mine = g2.smokes.filter((s) => s.team === h.owner);
+        g2.smokes = g2.smokes.filter((s2) => !(s2.x === c.x && s2.y === c.y)); mine = g2.smokes.filter((s2) => s2.team === h.owner);
       }
-    }, { desc: 'Create a Smoke on an adjacent tile; keep at most 2 Smokes.', avail: (g2, h) => (g2.neighbors(h.x, h.y).some(([x, y]) => !g2.isWall(x, y) && !g2.smokeAt(x, y)) ? null : 'No tile available') }),
+    }, { desc: 'Create a Smoke on an adjacent tile or on this tile; keep at most 2 Smokes.',
+      avail: (g2, h) => ([[h.x, h.y], ...g2.neighbors(h.x, h.y)].some(([x, y]) => !g2.isWall(x, y) && !g2.smokeAt(x, y)) ? null : 'No tile available') }),
+    D('fumes', 'Consume Fumes', 1, async (g2, h, A) => {
+      const mine = g2.smokes.filter((s2) => s2.team === h.owner); if (!mine.length) return;
+      A.commit(); g2.smokes = g2.smokes.filter((s2) => s2.team !== h.owner); h.fumes = (h.fumes || 0) + mine.length;
+      g2.log(`Cigar consumes ${mine.length} Smoke${mine.length > 1 ? 's' : ''}: his attacks deal +${h.fumes} damage this round.`);
+    }, { desc: "Remove all your Smokes. Until end of round, Cigar's attacks deal 1 more damage per Smoke removed.",
+      avail: (g2, h) => (g2.smokes.some((s2) => s2.team === h.owner) ? null : 'You have no Smokes') }),
   ],
   income: (g, e) => [
     D('boom', 'Booming Economy', 1, async (g2, h, A) => {
@@ -187,9 +204,9 @@ const IMPL = {
   ],
   hail: (g, e) => [
     D('cone', 'Snow Cone', 0, async (g2, h, A) => {
-      const t = await g2.pickEnt(g2.team(h), alliesOf(g2, h, g2.scan(h, g2.reachOf(h)).map((v) => v.ent)), 'Snow Cone: heal an ally within reach by 4'); if (!t) return;
+      const t = await g2.pickEnt(g2.team(h), [h, ...alliesOf(g2, h, g2.scan(h, g2.reachOf(h)).map((v) => v.ent))].filter((x) => !x.snow), 'Snow Cone: heal an ally within reach (or Hail herself) by 4'); if (!t) return;
       A.commit(); g2.heal(t, 4);
-    }, { once: true, desc: 'Heal an allied entity within reach by 4.' }),
+    }, { once: true, desc: 'Heal an allied entity within reach, or Hail herself, by 4.' }),
     D('snow', 'Mr. Snow', 1, async (g2, h, A) => {
       const t = await g2.pickEnt(g2.team(h), alliesOf(g2, h, g2.scan(h, g2.reachOf(h)).map((v) => v.ent)).filter((x) => !x.snow), 'Mr. Snow: choose an ally to turn into a Snowman'); if (!t) return;
       A.commit(); t.snow = true; g2.log(`${t.name} becomes a Snowman until the end of the round.`);
@@ -232,7 +249,7 @@ const IMPL = {
     D('flee', 'Flee Blast', 2, async (g2, h, A) => {
       const v0 = g2.attackTargets(h, { reach: 1 }); const t = await g2.pickEnt(g2.team(h), v0.map((v) => v.ent), 'Flee Blast: choose an adjacent enemy'); if (!t) return;
       const d = v0.find((v) => v.ent === t).dir; A.commit();
-      await g2.dealDamage(t, 2, src(g2, h));
+      await g2.attack(h, t, 2);
       if (!t.dead) { const [x, y] = step(t.x, t.y, d); await g2.forceMove(t, x, y, h); }
       const [bx, by] = step(h.x, h.y, OPP[d]);
       if (g2.isFree(bx, by)) { g2.setPos(h, bx, by); await g2.onEnter(h, { move: true }); }
@@ -271,7 +288,7 @@ export async function gatherHook(g, h) {
     }
   }
   if (id === 'clark') {
-    const ok = [...g.tiles.values()].filter((q) => q.t !== 'WW' && DIR_LIST.some((d) => { const [x, y] = step(q.x, q.y, d); return g.isWall(x, y); }));
+    const ok = [...g.tiles.values()].filter((q) => !g.isWall(q.x, q.y) && DIR_LIST.some((d) => { const [x, y] = step(q.x, q.y, d); return g.isBarrier(x, y); })); // next to a barrier tile (Wall or Void)
     if (ok.length >= 2) {
       const a = await g.pickTile(t, ok, 'I Found a Place: choose the first tile (next to a wall/void)', { cancel: true, cancelLabel: 'Skip' }); if (!a) return;
       const b = await g.pickTile(t, ok.filter((q) => !(q.x === a.x && q.y === a.y)), 'I Found a Place: choose the second tile', { cancel: true, cancelLabel: 'Skip' }); if (!b) return;

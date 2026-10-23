@@ -5,7 +5,7 @@ import { CONFIG } from './config.js';
 import { DIRS, DIR_LIST, key } from './hex.js';
 
 const KEY = 'hexgame.maps.v1';
-export const TILE_TYPES = ['BS', 'RS', 'BN', 'RN', 'MM', 'CP', 'MP', 'BT', 'RT', 'BA', 'RA', 'WW', 'HG', 'HT'];
+export const TILE_TYPES = ['BS', 'RS', 'BN', 'RN', 'MM', 'CP', 'MP', 'BT', 'RT', 'BA', 'RA', 'WW', 'WB', 'SB', 'HG', 'HT'];
 export const TELEPORTS = ['BT', 'RT'];
 // A teleport connects to the first teleport/anchor of its own colour (rules: tiles.csv).
 export const TP_TARGETS = { BT: ['BT', 'BA'], RT: ['RT', 'RA'] };

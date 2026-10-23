@@ -17,3 +17,5 @@ assets/tiles/    one file per tile code used by the maps, e.g. BS.png RS.png BN.
   Drawn inside the hexagon, so use a roughly square image. Teleport arrows are drawn on top of BT/RT.
 
 Any file that is missing falls back to a coloured placeholder / initials, so you can add images one at a time.
+
+New tiles: assets/tiles/WB.png (Wood Box), SB.png (Steel Box), HG.png (High Ground), HT.png (Heal Tile) - same rules as the other tile images.

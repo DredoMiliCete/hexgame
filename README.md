@@ -11,7 +11,8 @@ Browsers block ES modules from `file://`, so serve the folder:
 Draft mode (1-2-2-2-2-2-2-1 picks, starting player picks first) - Constructed mode (7 heroes each, repeats allowed across teams)
 - Compbuilder (save team compositions; "Interrail Comp" is built in and read-only - duplicate it to edit)
 - Hero abilities panel (tokens created by a hero are linked from its page)
-- Map maker (create, edit and delete maps - see below) - Options (maximum map size for the map maker).
+- Map maker (create, edit and delete maps - see below)
+- Options: maximum map size, **Editable Heroes** (off by default), and **Reset game cache**.
 Compositions are stored in the browser (localStorage), so they belong to the address you use (keep using http://localhost:8000).
 
 ## Map maker
@@ -22,8 +23,18 @@ Menu -> Map maker. The list shows every map (the 5 built-in ones and yours) with
 - **Saving** needs a name and at least 7 Blu Spawn and 7 Red Spawn tiles (counters + the reason are shown next to the Save button). Saved maps show up in Draft/Constructed mode as "(custom)".
 - Built-in maps are read-only: opening one gives you a copy ("<name> copy") that you save under a new name. Changing the name of one of your own maps and saving creates a copy; the original stays.
 - Erasing/replacing a tile that teleports point at also removes the teleports that would be left dangling (it asks first; Undo brings them back).
-- **Size:** the board is 12x12 by default (coordinates 0,0 to 11,11). Options -> maximum map size raises it (up to 30). A map bigger than the limit (Lust Map is 13x13) keeps its own size when edited.
+- **Size:** the board is 13x13 by default (coordinates 0,0 to 12,12). Options -> maximum map size raises it (up to 30). A map bigger than the limit keeps its own size when edited.
+- Wood Box (WB) and Steel Box (SB) tiles are in the Terrain group.
 - Custom maps and the option are stored in the browser (localStorage), so - like compositions - they belong to the address you use (keep using http://localhost:8000).
+
+## Options
+- **Maximum map size** for the map maker (default 13).
+- **Editable Heroes** (off by default): in *Hero abilities*, each hero gets HP / Move / Attack / Reach / AP inputs (**Save stats**, **Reset to CSV**). Edits are used by draft, constructed mode and the game while the option is on; turning it off goes back to roster.csv (the edits are kept).
+- **Reset game cache**: removes all custom compositions, custom maps, edited hero stats and the loaded-image cache (images are fetched again from `assets/`). The options themselves are kept.
+
+## Tiles and territory
+`data/tiles.csv` has a *territory of* column: BLU, RED, NONE or ADJACENT (Money Point, High Ground, Heal Tile). An ADJACENT tile takes the territory that most of its 6 neighbours have (fellow ADJACENT tiles count as none, a tie = none). `ADJ_NONE_COMPETES` in `js/config.js` chooses whether neutral neighbours (walls, middle tiles) also compete in that count (default: no).
+Wood Box / Steel Box: act as walls, are not barriers, can be attacked (1 / 3 HP) and become a normal tile (Blu Normal, Red Normal or Middle by the neighbours' territory) when destroyed. Sailor's random attacks never target boxes (they only pick entities).
 
 ## Images
 Drop PNGs into `assets/heroes`, `assets/tokens`, `assets/tiles` - see `assets/README.txt` for the exact file names.
@@ -37,7 +48,7 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
   this is the seam for the future two-window / two-PC mode: run the engine in one place and forward `io` calls to the right client.
 - `js/abilities.js` the 16 implemented heroes (+ tokens)  - `js/ui.js` board, HUD, io implementation  - `js/main.js` menus/draft
 - `js/maps.js` map registry (built-in + custom), save rules (`validateMap`)  - `js/mapedit.js` editing model (teleport rules, undo)  - `js/mapmaker.js` map maker screens  - `js/options.js` options
-- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs` and `tests/ui-maps.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
+- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
 
 ## Interpretations worth double-checking
 - Respawn time is not in rules.csv: `RESPAWN_BASE = 2` rounds (VIP: 1). A hero dying in round N returns at the end of round N+1.
@@ -52,4 +63,8 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - Cat appears (Paw Pal) when heroes are revealed, not while they are still face down.
 - Teleport tiles are one-way adjacent to their target coordinate; forced moves never trigger "performs a move" effects (Acorn Rattle).
 - HG/HT tiles have basic support in the engine; no built-in map uses them, but the Map maker can place them.
+- Sailor: *Cheers* lasts until the end of the round if unused; Metal Leg picks a random adjacent enemy entity (all his attacks are random).
+- Cigar: *Lung Resist* protects against stuns (and other effects that tap him) but not against being gathered; the 1 damage at the end of every round has no killer.
+- Monkey: *Kick Punch Special* lifts the "same action once per turn" rule for his attacks only.
+- Clark's *I Found a Place* uses barrier tiles (Wall and Void); boxes are not barriers.
 - Not implemented: JoniClan, Manucss, Pombo, Sonecas (shown locked), and online play.

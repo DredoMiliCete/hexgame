@@ -77,3 +77,22 @@ Whenever you place a High Ground tile, you must choose its direction
 A map cannot be saved if you have not placed 7 Red Spawn tiles or 7 Blu Spawn tiles
 any more questions, be sure to ask, if not, go for it
 
+
+## New Maps and Abilities Update -- v0.4
+Apply the following changes/additions to the current game:
+
+1. The roster.csv has been updated, and most importantly, Sailor, Cigar and Monkey have been given their full kits now, so implement them into the game;
+
+2. The tiles.csv has been updated with new tiles. Also, the territory column designates what territory should each tile belong to (for the adjacent, count what's the territory of each adjacent tile (with fellow adjacents counting as none). the territory with the most adjacent tiles is the territory of that tile, if it is a tie, then the tile is part of none territory)
+
+3. The maps.csv has been updated with 2 new maps, and an update on the Lust Map aswell
+
+4. Add an option in options to be selected called "Editable Heroes", by defaulted not enabled. If enabled, in the hero abilities screen, the user can modify the values of the heroes stats (for now, only HP, Move, Attack, Reach and AP, in a latter version will add more customizability)
+
+5. Change the default mapsize in options from 12 to 13
+
+6. Add a new option called "reset" where you can reset the cache of the game (so remove all custom comps, maps, stats and images that are loaded in)
+
+7. In the in-game UI, the BLU team's name and AP should be on the most left, the RED team's name and AP on the most right. In the middle of the top bar should be the Control bar, flanked by three balls that represent the amount of VIP kills (gray no kill, color of the team is kill) and then the money amount in yellow/gold. All the menu options should be on the bottom left and bottom right. This are part of UI changes that will come in later patches
+
+That's it for now, any questions ask, if not, go for it

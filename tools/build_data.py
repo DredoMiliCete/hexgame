@@ -60,10 +60,19 @@ for ci, name in [(i, c) for i, c in enumerate(mrows[2]) if c.strip()]:
             tiles.append(t)
     maps[name] = tiles
 
+for _name, _tiles in maps.items():  # warn about teleports that do not point at a teleport/anchor of their colour
+    _at = {(t['x'], t['y']): t for t in _tiles}
+    for t in _tiles:
+        if t['t'] in ('BT', 'RT'):
+            d = _at.get((t.get('tx'), t.get('ty')))
+            if not d or d['t'] not in (t['t'], t['t'][0] + 'A'):
+                print(f"WARNING: {_name}: teleport {t['t']} at ({t['x']},{t['y']}) points at ({t.get('tx')},{t.get('ty')}) which is not a {t['t'][0]}T/{t['t'][0]}A tile")
+
 tiles_info = {}
 for r in list(csv.reader(open(os.path.join(D, 'tiles.csv'), encoding='utf-8')))[2:]:
     if len(r) > 4 and r[1].strip():
-        tiles_info[r[1].strip()] = {'name': r[2].strip(), 'look': r[3].strip(), 'text': r[4].strip()}
+        terr = (r[5].strip().upper() if len(r) > 5 else '') or 'NONE'  # BLU | RED | NONE | ADJACENT (see tiles.csv)
+        tiles_info[r[1].strip()] = {'name': r[2].strip(), 'look': r[3].strip(), 'text': r[4].strip(), 'territory': terr}
 if 'BR' in tiles_info:
     tiles_info['RA'] = tiles_info.pop('BR')  # tiles.csv calls Red Anchor "BR"; the maps use "RA"
 

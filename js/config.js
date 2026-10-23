@@ -9,5 +9,9 @@ export const CONFIG = {
   AP_PER_TURN: 2,
   DEAD_AP: [0, 1, 3, 6],    // AP gained from 0, 1, 2, 3+ dead heroes
   CONTROL_BAR: 9,           // tracker starts in the middle (index 4)
+  // Territory of ADJACENT tiles (Money Point, High Ground, Heal Tile): the territory with the most neighbouring tiles wins, a tie = none.
+  // true: 'none' neighbours (walls, middle tiles, other ADJACENT tiles) also count as a competing territory (strict literal reading: most Pride/Gluttony Money Points would become neutral);
+  // false (default): fellow ADJACENT/none neighbours are ignored and only Blu vs Red neighbours are compared (a tie = none).
+  ADJ_NONE_COMPETES: false,
 };
 export const TEAM_NAMES = ['Blu', 'Red'];

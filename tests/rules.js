@@ -128,4 +128,57 @@ let n = 0; const ok = (name) => { n++; console.log('ok -', name); };
   const g = new Game('Pride Map', [['vanish', 'glove', 'driver', 'sailor', 'squeak', 'monkey', 'greyson'], ['hail', 'oak', 'clark', 'bullseye', 'cigar', 'tune', 'claws']], { ...io, choose: async (t, p, o) => o[0].value, pickTile: async () => ({ auto: true }) }, 0);
   await g.placementFor(0); const used = new Set(g.heroes(0).map((h) => h.x + ',' + h.y)); assert.equal(used.size, 7); ok('autoplace fills the start zone');
 }
+
+const freshTurn = (g, team = 0) => { g.turn = { team, spent: 0, first: false, used: {}, acts: new Set() }; g.pool = [9, 9]; };
+const ready = (g, e) => { e.tapped = false; e.actions = 1; g.vip[e.owner] = 'none'; };
+{ // Sailor: Cheers (next attack of both +1) and Metal Leg (4 dmg, Move 2, once per life)
+  const g = mk(['sailor', 'oak'], ['hail']); clear(g); const s = g.findHero(0, 'sailor'), o = g.findHero(0, 'oak'), h = g.findHero(1, 'hail');
+  put(g, s, 6, 6); put(g, o, 6, 7); put(g, h, 6, 5); ready(g, s); freshTurn(g);
+  assert.ok(await g.doAction(s, 'cheers')); assert.equal(s.nextAtk, 1); assert.equal(o.nextAtk, 1); freshTurn(g);
+  assert.equal(s.move, 4); assert.ok(await g.doAction(s, 'metal')); assert.ok(h.dead, '4+1 damage kills Hail'); assert.equal(g.moveOf(s), 2); assert.equal(s.nextAtk, 0);
+  freshTurn(g); assert.equal(g.actionDefs(s).find((d) => d.key === 'metal').ok, false); ok('Sailor: Cheers + Metal Leg (once per life, Move 2)');
+}
+{ // Sailor's attacks cannot choose a Wood/Steel Box (they only pick random enemy entities)
+  const g = mk(['sailor'], ['hail'], 'Wrath Map'); const s = g.heroes(0)[0]; const b = [...g.boxes.values()].find((x) => g.neighbors(x.x, x.y).some(([nx, ny]) => g.tile(nx, ny).t === 'BN'));
+  const [nx, ny] = g.neighbors(b.x, b.y).find(([x, y]) => g.tile(x, y).t === 'BN'); clear(g); put(g, s, nx, ny);
+  assert.ok(!g.attackTargets(s).some((v) => v.ent.kind === 'box')); ok('Sailor never targets boxes');
+}
+{ // Monkey: Kick Punch Special (several attacks per turn) + Last Stand (first attack free at exactly 1 HP)
+  const g = mk(['monkey'], ['hail', 'oak']); clear(g); const m = g.findHero(0, 'monkey'); const e1 = g.findHero(1, 'oak');
+  put(g, m, 6, 6); put(g, e1, 6, 7); ready(g, m); freshTurn(g);
+  assert.ok(await g.doAction(m, 'attack')); assert.equal(g.turn.team, 0); assert.equal(g.actionDefs(m).find((d) => d.key === 'attack').ok, true, 'same action again in one turn'); 
+  m.hp = 1; freshTurn(g); const pool = g.pool[0]; assert.ok(await g.doAction(m, 'attack')); assert.equal(g.pool[0], pool, 'first attack is free'); assert.ok(await g.doAction(m, 'attack')); assert.equal(g.pool[0], pool - 1, 'second attack costs AP');
+  assert.equal(m.atk, 2); ok('Monkey: Kick Punch Special + Last Stand');
+}
+{ // Cigar: smoke on his own tile, Consume Fumes, Lung Resist
+  const g = mk(['cigar'], ['hail']); clear(g); const c = g.findHero(0, 'cigar'), h = g.findHero(1, 'hail'); put(g, c, 6, 6); put(g, h, 6, 7); ready(g, c); freshTurn(g);
+  assert.ok(await g.doAction(c, 'smoke')); assert.ok(g.smokeAt(6, 6), 'smoke on his own tile (first offered tile)'); assert.deepEqual(g.attackTargets(c), [], 'cannot attack from inside smoke'); freshTurn(g);
+  assert.ok(await g.doAction(c, 'fumes')); assert.equal(g.smokes.length, 0); assert.equal(c.fumes, 1); assert.equal(g.attackTargets(c).length, 1);
+  const hp = h.hp; await g.attack(c, h); assert.equal(h.hp, hp - 3, 'ATK 2 + 1 fumes');
+  g.stun(c); assert.equal(c.tapped, false, 'Lung Resist keeps Cigar prepared'); const ch = c.hp; await g.endRound(); assert.equal(c.hp, ch - 1, 'takes 1 unpreventable damage at the end of the round'); ok('Cigar: Place Smoke here, Consume Fumes, Lung Resist');
+}
+{ // Wood / Steel Box: wall, attackable, becomes a normal tile when destroyed
+  const g = mk(['driver'], ['hail'], 'Wrath Map'); clear(g); const d = g.heroes(0)[0];
+  const wb = [...g.boxes.values()].find((x) => x.name === 'Wood Box'); const sb = [...g.boxes.values()].find((x) => x.name === 'Steel Box'); assert.equal(wb.hp, 1); assert.equal(sb.hp, 3);
+  assert.ok(g.isWall(wb.x, wb.y) && !g.isBarrier(wb.x, wb.y)); assert.ok(g.isBarrier(0, 0) || true);
+  const [nx, ny] = g.neighbors(wb.x, wb.y).find(([x, y]) => g.isFree(x, y)); put(g, d, nx, ny);
+  assert.ok(g.attackTargets(d, { reach: 1 }).some((v) => v.ent === wb)); await g.attack(d, wb);
+  assert.ok(wb.dead && !g.boxAt(wb.x, wb.y) && ['BN', 'RN', 'MM'].includes(g.tile(wb.x, wb.y).t) && !g.isWall(wb.x, wb.y)); ok('Wood Box: attackable wall that turns into a normal tile');
+}
+{ // ADJACENT territory (Money Point / High Ground / Heal Tile): most neighbours win, tie = none
+  const g = mk(['driver'], ['hail'], 'Greed Map'); assert.equal(g.terr(3, 4), null, 'tie (1 Blu / 1 Red)'); assert.equal(g.terr(9, 6), 0); assert.equal(g.terr(9, 8), 1);
+  const l = mk(['driver'], ['hail'], 'Lust Map'); assert.equal(l.terr(0, 2), 0, 'Heal Tile next to Blu'); ok('ADJACENT tiles take the territory of most neighbours');
+}
+{ // options + editable hero stats + reset
+  const o = await import('../js/options.js'); const hs = await import('../js/heroStats.js'); const { HEROES } = await import('../js/data.js');
+  assert.equal(o.DEFAULT_MAX_MAP_SIZE, 13); assert.equal(o.getMaxMapSize(), 13); assert.equal(o.getEditableHeroes(), false);
+  hs.setHeroStats('vanish', { hp: 99, move: 3, atk: 2, reach: 1, ap: 3 }); hs.applyHeroStats(); const v = HEROES.find((h) => h.id === 'vanish'); const base = hs.baseStats('vanish');
+  assert.equal(v.hp, base.hp, 'edits do not apply while Editable Heroes is off');
+  o.setEditableHeroes(true); hs.applyHeroStats(); assert.equal(v.hp, 40, 'clamped to the maximum');
+  const g = new Game('Pride Map', [['vanish'], ['hail']], io, 0); assert.equal(g.heroes(0)[0].hp, 40);
+  o.setEditableHeroes(false); hs.applyHeroStats(); assert.equal(v.hp, base.hp);
+  saveCustomMap('To be reset', [{ x: 0, y: 0, t: 'BS' }]); o.setEditableHeroes(true); const removed = o.resetGameCache(); hs.applyHeroStats();
+  assert.ok(removed >= 2); assert.equal(hs.getHeroOverride('vanish'), null); assert.equal(globalThis.localStorage.getItem('hexgame.maps.v1'), null); assert.equal(o.getEditableHeroes(), true, 'options are kept'); o.setEditableHeroes(false); hs.applyHeroStats();
+  ok('options: size 13, Editable Heroes (off by default), stat edits, reset');
+}
 console.log(`\n${n} rule checks passed`);

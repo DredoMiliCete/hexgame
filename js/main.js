@@ -9,7 +9,8 @@ import { portrait, portraitById, heroColor } from './colors.js';
 import { loadComps, saveComps, newId } from './comps.js';
 import { allMapNames, isBuiltinMap } from './maps.js';
 import { mapMaker } from './mapmaker.js';
-import { getMaxMapSize, setMaxMapSize, DEFAULT_MAX_MAP_SIZE, MAX_MAP_SIZE_LIMIT } from './options.js';
+import { getMaxMapSize, setMaxMapSize, DEFAULT_MAX_MAP_SIZE, MAX_MAP_SIZE_LIMIT, getEditableHeroes, setEditableHeroes, resetGameCache } from './options.js';
+import { STAT_FIELDS, baseStats, getHeroOverride, setHeroStats, resetHeroStats, applyHeroStats } from './heroStats.js';
 
 const app = document.getElementById('app');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -18,11 +19,16 @@ const byId = (id) => HEROES.find((h) => h.id === id);
 let rerender = null;
 onAssetLoad(() => rerender?.());
 
-function heroDetail(d, { tokens = false } = {}) {
+function statsForm(d) {
+  const base = baseStats(d.id); const ov = getHeroOverride(d.id);
+  return `<div class="statform"><div class="statrow">${STAT_FIELDS.map(([k, label, lo, hi]) => `<label>${label}<input type="number" data-stat="${k}" min="${lo}" max="${hi}" step="1" value="${d[k]}" title="CSV value: ${base[k]}"></label>`).join('')}</div>
+    <div class="opts"><button data-stat-save="${d.id}">Save stats</button><button data-stat-reset="${d.id}" ${ov ? '' : 'disabled'}>Reset to CSV</button></div><p class="hint">Editable Heroes is on. ${ov ? 'This hero has edited stats.' : ''}</p></div>`;
+}
+function heroDetail(d, { tokens = false, editable = false } = {}) {
   if (!d) return '<p class="hint">Hover or click a hero to read its abilities.</p>';
   const toks = tokens ? (HERO_TOKENS[d.id] || []) : [];
   return `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(d.name)}</h4><div class="sub">${esc(d.class)} · ${esc(d.subrole)}</div></div></div>
-    ${d.implemented ? `<div class="stats">HP ${d.hp} · Move ${d.move} · ATK ${d.atk} · Reach ${d.reach} · AP ${d.ap}</div>
+    ${d.implemented ? `${editable ? statsForm(d) : `<div class="stats">HP ${d.hp} · Move ${d.move} · ATK ${d.atk} · Reach ${d.reach} · AP ${d.ap}${getHeroOverride(d.id) && getEditableHeroes() ? ' <small>(edited)</small>' : ''}</div>`}
     ${d.blurb ? `<p class="blurb">${esc(d.blurb)}</p>` : ''}
     ${d.abilities.map((a) => `<p class="ab"><b>${esc(a.name)}</b>${a.passive ? ' <em>(passive)</em>' : ` <em>(${a.cost} AP)</em>`}<br>${esc(a.text)}</p>`).join('')}
     ${toks.length ? `<div class="toklinks"><span>Creates:</span>${toks.map((k) => `<button data-tok="${k}">${esc(TOKENS[k].name)}</button>`).join('')}</div>` : ''}` : '<p class="hint">Coming soon: stats and abilities are not implemented yet.</p>'}`;
@@ -57,12 +63,19 @@ function menu() {
 function openMapMaker() { rerender = null; mapMaker({ app, back: menu, setRerender: (fn) => { rerender = fn; } }); }
 
 function optionsPage() {
-  rerender = null; let msg = '';
+  rerender = null; let msg = '', msg2 = '';
   const draw = () => {
     app.innerHTML = `<div class="page narrow">${head('Options')}
       <label class="field">Map maker: maximum map size (tiles per side)<input id="maxsize" type="number" min="${DEFAULT_MAX_MAP_SIZE}" max="${MAX_MAP_SIZE_LIMIT}" step="1" value="${getMaxMapSize()}"></label>
       <p class="hint">Default ${DEFAULT_MAX_MAP_SIZE}: the map maker board goes from coordinates 0,0 to ${DEFAULT_MAX_MAP_SIZE - 1},${DEFAULT_MAX_MAP_SIZE - 1}. You can raise it up to ${MAX_MAP_SIZE_LIMIT}. Maps you already saved keep their size.</p>
-      <div class="opts"><button class="big" id="osave">Save</button><button id="oreset">Reset to ${DEFAULT_MAX_MAP_SIZE}</button></div><p class="msg">${esc(msg)}</p></div>`;
+      <div class="opts"><button class="big" id="osave">Save</button><button id="oreset">Reset to ${DEFAULT_MAX_MAP_SIZE}</button></div><p class="msg">${esc(msg)}</p>
+      <hr class="sep">
+      <label class="chk big"><input type="checkbox" id="edheroes" ${getEditableHeroes() ? 'checked' : ''}> Editable Heroes</label>
+      <p class="hint">Off by default. When on, the Hero abilities screen lets you change each hero's HP, Move, Attack, Reach and AP. The edits are used in every mode (draft, constructed, the game) while this is on; turning it off goes back to the values in roster.csv (your edits are kept).</p>
+      <hr class="sep">
+      <h3>Reset</h3>
+      <p class="hint">Clears the game's stored data in this browser: all custom compositions, custom maps, edited hero stats and the loaded images (they are fetched again from the assets folders). Options are kept.</p>
+      <button id="oclear">Reset game cache</button><p class="msg">${esc(msg2)}</p></div>`;
     app.querySelector('[data-back]').onclick = menu;
     app.querySelector('#osave').onclick = () => {
       const raw = Number(app.querySelector('#maxsize').value);
@@ -70,6 +83,11 @@ function optionsPage() {
       msg = setMaxMapSize(raw) === raw ? `Saved: maps can now be ${raw}×${raw}.` : 'Could not save (browser storage is blocked).'; draw();
     };
     app.querySelector('#oreset').onclick = () => { setMaxMapSize(DEFAULT_MAX_MAP_SIZE); msg = `Back to ${DEFAULT_MAX_MAP_SIZE}×${DEFAULT_MAX_MAP_SIZE}.`; draw(); };
+    app.querySelector('#edheroes').onchange = (e) => { setEditableHeroes(e.target.checked); applyHeroStats(); };
+    app.querySelector('#oclear').onclick = () => {
+      if (!confirm('Delete all custom compositions, custom maps, edited hero stats and loaded images?')) return;
+      const n = resetGameCache(); applyHeroStats(); msg2 = n ? `Done: ${n} stored item${n > 1 ? 's' : ''} removed.` : 'Done: there was nothing stored.'; draw();
+    };
   };
   draw();
 }
@@ -78,12 +96,17 @@ function heroesPanel(start = null) {
   let sel = start, tok = null;
   const draw = () => {
     app.innerHTML = `<div class="page">${head('Hero abilities')}
-      <div class="split"><div class="grid">${HEROES.map((d) => card(d, sel === d.id && !tok ? 'on' : '')).join('')}</div><div class="detail">${tok ? `<button class="ghost" data-backhero>← Back to ${esc(byId(sel)?.name || 'heroes')}</button>${tokenDetail(tok)}` : heroDetail(byId(sel), { tokens: true })}</div></div></div>`;
+      <div class="split"><div class="grid">${HEROES.map((d) => card(d, sel === d.id && !tok ? 'on' : '')).join('')}</div><div class="detail">${tok ? `<button class="ghost" data-backhero>← Back to ${esc(byId(sel)?.name || 'heroes')}</button>${tokenDetail(tok)}` : heroDetail(byId(sel), { tokens: true, editable: getEditableHeroes() })}</div></div></div>`;
     app.querySelector('[data-back]').onclick = menu;
     app.querySelectorAll('.hcard').forEach((b) => (b.onclick = () => { sel = b.dataset.id; tok = null; draw(); }));
     app.querySelectorAll('[data-tok]').forEach((b) => (b.onclick = () => { tok = b.dataset.tok; draw(); }));
     app.querySelectorAll('[data-hero]').forEach((b) => (b.onclick = () => { sel = b.dataset.hero; tok = null; draw(); }));
     app.querySelector('[data-backhero]')?.addEventListener('click', () => { tok = null; draw(); });
+    app.querySelector('[data-stat-save]')?.addEventListener('click', (e) => {
+      const vals = {}; app.querySelectorAll('[data-stat]').forEach((i) => { vals[i.dataset.stat] = i.value; });
+      setHeroStats(e.target.dataset.statSave, vals); applyHeroStats(); draw();
+    });
+    app.querySelector('[data-stat-reset]')?.addEventListener('click', (e) => { resetHeroStats(e.target.dataset.statReset); applyHeroStats(); draw(); });
   };
   rerender = draw; draw();
 }
@@ -190,4 +213,5 @@ function startGame(map, teams, first) {
   game.run().catch((err) => { console.error(err); alert('Game error: ' + err.message + '\n(see the browser console)'); });
 }
 
+applyHeroStats();
 menu();

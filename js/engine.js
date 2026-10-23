@@ -1,6 +1,6 @@
 // Game engine: pure rules, no DOM. All player decisions go through `io` (see ui.js / tests/sim.js),
 // which makes it possible to drive the same engine from another window / over the network later.
-import { HEROES } from './data.js';
+import { HEROES, TILE_INFO } from './data.js';
 import { getMapTiles, hgDir } from './maps.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
@@ -8,7 +8,8 @@ import { DIR_LIST, DIR_LABEL, key, step, hexDist, OPP, DIRS } from './hex.js';
 import { D, heroDefs, gatherHook, placedHook, rand } from './abilities.js';
 
 const START = ['BS', 'RS'];
-const baseTerr = (t) => (['BN', 'BS', 'BT', 'BA'].includes(t) ? 0 : ['RN', 'RS', 'RT', 'RA'].includes(t) ? 1 : null);
+const WALLS = ['WW', 'WB', 'SB'];                 // tiles that block movement and lines of sight (WB/SB can be destroyed)
+const BOXES = { WB: ['Wood Box', 1], SB: ['Steel Box', 3] };
 export const heroDef = (id) => HEROES.find((h) => h.id === id);
 
 export class Game {
@@ -22,6 +23,8 @@ export class Game {
       if (t.t === 'HG') tile.hgd = hgDir(t.hg); // HG(+,0): the signs point at a real direction
       this.tiles.set(key(t.x, t.y), tile);
     }
+    this.terrCache = new Map(); this.boxes = new Map();
+    for (const t of this.tiles.values()) if (BOXES[t.t]) this.boxes.set(key(t.x, t.y), { id: -(this.boxes.size + 1), kind: 'box', name: BOXES[t.t][0], x: t.x, y: t.y, hp: BOXES[t.t][1], maxHp: BOXES[t.t][1], owner: -1, ctrl: null, dead: false, snow: false, attachedTo: null, shield: false, money: 0, used: {}, buff: { atk: 0, move: 0 } });
     this.ents = []; this.nextId = 1; this.smokes = []; this.portals = []; this.seq = 0;
     this.round = 0; this.pool = [0, 0]; this.glovePool = [0, 0]; this.money = [0, 0];
     this.vipKills = [0, 0]; this.vip = [null, null]; this.tracker = Math.floor(CONFIG.CONTROL_BAR / 2);
@@ -42,34 +45,42 @@ export class Game {
   onBoard(e) { return e && !e.dead && e.x != null; }
   entityAt(x, y) { return this.ents.find((e) => !e.dead && e.x === x && e.y === y && e.attachedTo == null); }
   tile(x, y) { return this.tiles.get(key(x, y)); }
-  isWall(x, y) { const t = this.tile(x, y); return !t || t.t === 'WW' || (this.phase === 'pregame' && t.t === 'CP'); } // CPs are walls during pregame movement
+  isWall(x, y) { const t = this.tile(x, y); return !t || WALLS.includes(t.t) || (this.phase === 'pregame' && t.t === 'CP'); } // CPs are walls during pregame movement
+  isBarrier(x, y) { const t = this.tile(x, y); return !t || t.t === 'WW'; } // Wall and Void (boxes are walls, but not barriers)
+  boxAt(x, y) { return this.boxes.get(key(x, y)); }
   isFree(x, y) { return !this.isWall(x, y) && !this.entityAt(x, y); }
   smokeAt(x, y) { return this.smokes.some((s) => s.x === x && s.y === y); }
-  // Territory of a tile: 0 = Blu, 1 = Red, null = neutral. A Money Point belongs to the territory of the tiles next to it
-  // (only Blu next to it -> Blu, only Red -> Red, neither or both -> neutral).
+  // Territory of a tile (tiles.csv, "territory of" column): 0 = Blu, 1 = Red, null = none.
+  // BLU / RED / NONE are fixed; ADJACENT tiles (Money Point, High Ground, Heal Tile) take the territory that most of their neighbours have.
   terr(x, y) {
-    const t = this.tile(x, y)?.t; if (!t) return null;
-    if (t !== 'MP') return baseTerr(t);
-    let blu = false, red = false;
+    const k = key(x, y); if (this.terrCache.has(k)) return this.terrCache.get(k);
+    const rule = this.tile(x, y) ? TILE_INFO[this.tile(x, y).t]?.territory : null;
+    const r = rule === 'BLU' ? 0 : rule === 'RED' ? 1 : rule === 'ADJACENT' ? this.adjacentTerr(x, y) : null;
+    this.terrCache.set(k, r); return r;
+  }
+  adjacentTerr(x, y) {
+    const c = { 0: 0, 1: 0, n: 0 };
     for (const d of DIR_LIST) {
-      const [nx, ny] = step(x, y, d); const n = this.tile(nx, ny); if (!n) continue;
-      const b = baseTerr(n.t); if (b === 0) blu = true; else if (b === 1) red = true;
+      const [nx, ny] = step(x, y, d); const n = this.tile(nx, ny); if (!n) continue; // void does not count
+      const rule = TILE_INFO[n.t]?.territory; if (rule === 'BLU') c[0]++; else if (rule === 'RED') c[1]++; else c.n++; // fellow ADJACENT tiles count as none
     }
-    return blu && !red ? 0 : red && !blu ? 1 : null;
+    const kinds = CONFIG.ADJ_NONE_COMPETES ? ['0', '1', 'n'] : ['0', '1'];
+    const max = Math.max(...kinds.map((q) => c[q])); const win = kinds.filter((q) => c[q] === max);
+    return max === 0 || win.length !== 1 || win[0] === 'n' ? null : Number(win[0]);
   }
   // Pregame movement: an entity may not enter (or cross) the enemy territory.
   pregameBlocked(e, x, y) { return this.phase === 'pregame' && this.terr(x, y) === 1 - this.team(e); }
   startTiles(t) { return [...this.tiles.values()].filter((x) => x.t === START[t]); }
   tilesOf(type) { return [...this.tiles.values()].filter((x) => x.t === type); }
   isTapped(e) { return e.holds != null ? this.ent(e.holds).tapped : e.tapped; }
-  stun(e) { if (!e || e.dead || e.snow) return; if (e.holds != null) this.ent(e.holds).tapped = true; e.tapped = true; this.log(`${e.name} is stunned.`); }
+  stun(e) { if (!e || e.dead || e.snow) return; if (e.def?.id === 'cigar') { this.log('Lung Resist: Cigar stays prepared.'); return; } if (e.holds != null) this.ent(e.holds).tapped = true; e.tapped = true; this.log(`${e.name} is stunned.`); }
   heal(e, n) { if (!e || e.dead || e.snow || n <= 0) return; e.hp = Math.min(e.maxHp, e.hp + n); this.log(`${e.name} heals ${n} (HP ${e.hp}/${e.maxHp}).`); }
   isVip(e) { return e.kind === 'hero' && this.vip[e.owner] === e.id; }
   hasMoneyLover(e) { return e.kind === 'hero' && (e.def.id === 'income' || e.moneyLover === this.round); }
   reachOf(e) { return e.reach + (e.buff.reach || 0); }
-  moveOf(e) { return e.move + e.buff.move; }
+  moveOf(e) { return (e.moveSet ?? e.move) + e.buff.move; } // Metal Leg sets Sailor's Move to 2 until he dies
   atkOf(e) {
-    if (e.def?.id === 'oak') return e.solar ? 2 : 1; // Acorn Rattle: buffs never raise Oak's attack; Solar Energize changes the base
+    if (e.def?.id === 'oak') return e.solar ? Math.max(2, e.atk) : e.atk; // Acorn Rattle: buffs never raise Oak's attack; Solar Energize changes the base
     return e.atk + e.buff.atk + (this.bonusAtk[this.team(e)] && e.kind === 'hero' && e.money > 0 ? 1 : 0);
   }
   cat(t) { return this.ents.find((e) => e.kind === 'cat' && e.owner === t && !e.dead); }
@@ -79,7 +90,7 @@ export class Game {
     const d = heroDef(id);
     const e = { id: this.nextId++, kind: 'hero', def: d, owner, name: d.name, x: null, y: null, hp: d.hp, maxHp: d.hp, move: d.move, atk: d.atk, reach: d.reach, ap: d.ap,
       tapped: false, gathered: false, dead: false, respawn: 0, money: 0, shield: false, used: {}, gameUsed: {}, buff: { atk: 0, move: 0 }, actions: 0, ctrl: null,
-      snow: false, attachedTo: null, inRat: null, sinceGather: 0, moved: false, song: null };
+      snow: false, attachedTo: null, inRat: null, sinceGather: 0, moved: false, song: null, lifeUsed: {}, moveSet: null, nextAtk: 0, fumes: 0 };
     this.ents.push(e); return e;
   }
   spawnToken(kind, owner, x, y) {
@@ -93,11 +104,11 @@ export class Game {
 
   // ---------- prompts ----------
   async pickTile(team, tiles, prompt, o = {}) { this.io.refresh?.(); return this.io.pickTile(team, tiles, prompt, o); }
-  async pickEnt(team, list, prompt, cancel = true, cancelLabel) {
+  async pickEnt(team, list, prompt, cancel = true, cancelLabel) { // list may contain boxes (attackable wall tiles)
     const ts = list.filter((e) => e.x != null).map((e) => ({ x: e.x, y: e.y }));
     if (!ts.length) return null;
     const t = await this.pickTile(team, ts, prompt, { cancel, cancelLabel });
-    return t ? this.entityAt(t.x, t.y) : null;
+    return t ? (this.entityAt(t.x, t.y) || this.boxAt(t.x, t.y)) : null;
   }
   async pickDir(team, dirs, prompt, cancel = true) {
     return this.io.choose(team, prompt, dirs.map((d) => ({ label: DIR_LABEL[d], value: d })), { cancel });
@@ -183,7 +194,7 @@ export class Game {
   async checkHold(e) {
     for (const b of this.ents.filter((h) => h.def?.id === 'bullseye' && !h.dead && h.hold && !h.hold.done && h.x != null && this.team(h) !== this.team(e))) {
       const v = this.lineScan(b, this.reachOf(b), { dirs: [b.hold.dir], smokeBlocks: true, throughEnemies: true, blockAlly: true });
-      if (v.some((s) => s.ent === e)) { b.hold.done = true; this.log(`Hold Line: Bullseye shoots ${e.name}!`); await this.dealDamage(e, 6, { hero: b, team: this.team(b) }); }
+      if (v.some((s) => s.ent === e)) { b.hold.done = true; this.log(`Hold Line: Bullseye shoots ${e.name}!`); await this.attack(b, e, 6); }
       if (e.dead) return;
     }
   }
@@ -265,7 +276,11 @@ export class Game {
       for (let i = 1; i <= r; i++) {
         [x, y] = step(x, y, d);
         const t = this.tile(x, y); if (!t) break;
-        if (t.t === 'WW') { if (walls > 0) { walls--; continue; } break; }
+        if (WALLS.includes(t.t)) { // walls block; with o.boxes the first Wood/Steel Box in line can be targeted
+          if (walls > 0) { walls--; continue; }
+          if (o.boxes && BOXES[t.t] && !(o.smokeBlocks && this.smokeAt(x, y))) { const b = this.boxAt(x, y); if (b) out.push({ ent: b, dir: d, dist: i }); }
+          break;
+        }
         if (o.smokeBlocks && this.smokeAt(x, y)) break;
         const e = this.entityAt(x, y);
         if (e) {
@@ -280,17 +295,28 @@ export class Game {
   attackTargets(a, o = {}) {
     const bull = a.def?.id === 'bullseye';
     const reach = o.reach ?? this.reachOf(a);
-    return this.lineScan(a, reach, { smokeBlocks: true, throughEnemies: bull, blockAlly: bull })
+    const sailor = a.def?.id === 'sailor'; // Drink and Shoot: random *entities* - boxes are tiles, not entities
+    return this.lineScan(a, reach, { smokeBlocks: true, throughEnemies: bull, blockAlly: bull, boxes: !sailor })
       .filter((v) => this.team(v.ent) !== this.team(a) && !v.ent.snow && v.ent.kind !== 'snowman' && !(v.ent.kind === 'ink' && v.dist > 1));
   }
   async attack(a, target, dmg = null) {
+    const bonus = (a.nextAtk || 0) + (a.fumes || 0); // Cheers (next attack only) and Consume Fumes (all attacks this round)
+    a.nextAtk = 0;
     this.log(`${a.name} attacks ${target.name}.`);
-    await this.dealDamage(target, dmg ?? this.atkOf(a), { hero: a, team: this.team(a) });
+    await this.dealDamage(target, (dmg ?? this.atkOf(a)) + bonus, { hero: a, team: this.team(a) });
+  }
+  async damageBox(b, n) {
+    b.hp -= n; this.log(`${b.name} takes ${n} damage (HP ${Math.max(0, b.hp)}/${b.maxHp}).`);
+    if (b.hp > 0) return n;
+    const tile = this.tile(b.x, b.y); const t = this.adjacentTerr(b.x, b.y); // becomes a normal tile of the neighbouring territory
+    tile.t = t === 0 ? 'BN' : t === 1 ? 'RN' : 'MM'; b.dead = true; this.boxes.delete(key(b.x, b.y)); this.terrCache.clear();
+    this.log(`${b.name} is destroyed: the tile becomes ${tile.t}.`); return n;
   }
 
   // ---------- damage & death ----------
   async dealDamage(t, n, src = {}, o = {}) {
     if (!t || t.dead || n <= 0 || t.snow || t.attachedTo != null) return 0;
+    if (t.kind === 'box') return this.damageBox(t, n);
     if (src.hero?.def?.id === 'squeak' && this.isTapped(t)) n *= 2; // Rat Curse
     if (t.kind === 'hero' && t.money > 0 && this.ents.some((h) => h.def?.id === 'trick' && !h.dead && this.team(h) !== this.team(t))) n += 1; // Money Talks
     if (t.kind === 'rat') return this.damageRat(t, n, src);
@@ -330,7 +356,7 @@ export class Game {
     const X = t.money; const income = this.ents.some((h) => h.def?.id === 'income' && !h.dead && h.owner === t.owner);
     this.log(`${t.name} is defeated!`);
     this.releaseRiders(t);
-    t.dead = true; t.x = t.y = null; t.hp = 0; t.money = 0; t.shield = false; t.ctrl = null; t.tapped = false; t.gathered = false; t.snow = false; t.attachedTo = null;
+    t.dead = true; t.x = t.y = null; t.hp = 0; t.money = 0; t.shield = false; t.ctrl = null; t.tapped = false; t.gathered = false; t.snow = false; t.attachedTo = null; t.lifeUsed = {}; t.moveSet = null; t.nextAtk = 0; t.fumes = 0;
     t.respawn = CONFIG.RESPAWN_BASE - (this.isVip(t) ? 1 : 0); t.sinceGather = 0;
     if (t.def.id === 'glove') this.glovePool[t.owner] = 0; // Glove's private AP die with him
     if (killer && this.team(killer) !== t.owner && X > 0) {
@@ -386,10 +412,11 @@ export class Game {
     if (e.attachedTo == null) {
       defs.push(D('move', 'Move', 1, async (g2, h, A) => { await g2.moveFlow(h, { A }); }, { desc: `Move up to ${this.moveOf(e)} tiles (at least 1).` }));
       if (this.tile(e.x, e.y).t !== 'CP') {
-        defs.push(D('attack', 'Attack', 1, async (g2, h, A) => {
+        const lastStand = e.def.id === 'monkey' && e.hp === 1 && !this.turn.used['ls' + e.id]; // Last Stand: first attack each turn is free at exactly 1 HP
+        defs.push(D('attack', 'Attack', lastStand ? 0 : 1, async (g2, h, A) => {
           const T = g2.attackTargets(h);
           const t = h.def.id === 'sailor' ? rand(T)?.ent : await g2.pickEnt(g2.team(h), T.map((v) => v.ent), `Attack with ${h.name} (${g2.atkOf(h)} dmg)`);
-          if (!t) return; A.commit(); await g2.attack(h, t);
+          if (!t) return; A.commit(); if (lastStand) g2.turn.used['ls' + h.id] = true; await g2.attack(h, t);
         }, { desc: `Attack in a straight line up to ${this.reachOf(e)} tiles for ${this.atkOf(e)} damage.`, avail: (g2, h) => (g2.atkOf(h) > 0 && g2.attackTargets(h).length ? null : 'No target in reach') }));
       }
     }
@@ -429,7 +456,8 @@ export class Game {
     if (this.team(e) !== this.turn.team) return { ok: false, why: 'Not your turn' };
     if (e.snow) return { ok: false, why: 'Snowman' };
     if (def.once && e.used[def.key]) return { ok: false, why: 'Once per round' };
-    if (!def.util && this.turnActs().has(e.id + ':' + def.key)) return { ok: false, why: 'Already used this turn' };
+    // Kick Punch Special: Monkey may attack any number of times per turn
+    if (!def.util && !(def.key === 'attack' && e.def?.id === 'monkey') && this.turnActs().has(e.id + ':' + def.key)) return { ok: false, why: 'Already used this turn' };
     if (!def.ignoreTapped && this.isTapped(e) && !this.freeAction(e)) return { ok: false, why: 'Unprepared (tapped)' };
     if (!this.freeAction(e) && def.cost > this.budget(e)) return { ok: false, why: 'Not enough AP' };
     if (def.avail) { const w = def.avail(this, e); if (w) return { ok: false, why: w }; }
@@ -599,6 +627,7 @@ export class Game {
       if (h) { const tm = this.team(h); this.tracker += tm === 0 ? -1 : 1; this.tracker = Math.max(0, Math.min(CONFIG.CONTROL_BAR - 1, this.tracker)); this.log(`${h.name} holds a Control Point: tracker moves toward ${this.name(tm)}.`); }
     }
     for (const h of live) if (this.tile(h.x, h.y).t === 'HT') this.heal(h, 2);
+    for (const c of this.ents.filter((h) => h.def?.id === 'cigar' && !h.dead && h.x != null)) { this.log('Lung Resist: Cigar takes 1 unpreventable damage.'); await this.dealDamage(c, 1, {}, { unpreventable: true }); }
     for (const h of this.ents.filter((x) => x.kind === 'hero' && x.dead)) {
       h.respawn--;
       if (h.respawn <= 0) {
@@ -613,7 +642,7 @@ export class Game {
     this.io.roundSummary?.({ round: this.round, money: [...this.money], vip: [...this.vipKills], tracker: this.tracker, bar: CONFIG.CONTROL_BAR, over: this.over });
     this.log(`Round ${this.round} objectives - money ${this.money.join('-')}, VIP kills ${this.vipKills.join('-')}, control ${this.tracker + 1}/${CONFIG.CONTROL_BAR}.`);
     for (const e of this.ents) {
-      e.shield = false; e.ctrl = null; e.snow = false; e.solar = false; e.hold = null; e.holdLock = false; e.buff = { atk: 0, move: 0 };
+      e.shield = false; e.ctrl = null; e.snow = false; e.solar = false; e.hold = null; e.holdLock = false; e.buff = { atk: 0, move: 0 }; e.nextAtk = 0; e.fumes = 0;
     }
     this.portals = []; this.bonusAtk = [false, false];
     this.first = 1 - this.first;
