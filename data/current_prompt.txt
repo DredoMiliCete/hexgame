@@ -1,7 +1,16 @@
+This new update should be a visual one. For that, I'm going to give you some context on the lore of the game, so you can better catch the vibe.
 
-"""
-next update should have:
-- visual enhancement, based arround the lore of the game
-- add 1950s new york aesthetic
-- add character's better descriptions
-- ADD CLASS COLORS
+Lore:
+    This is game is set on a high fantasy universe, in a huge city inspired by 1950s New York city. The city is divided in 7 Burrows (see the lore_places.csv), each one corresponding to a map in the game.
+    Being high fantasy, lots of weird and otherwordly beings inhabit this universe.
+    The city is also infested by high and low level gangs/mafia, who fight to control territories of the city.
+    A game of "Turfwars" (for now, the name of the game), is two different mafia fighting for one of this territories, using each 7 mercenaries (the heroes from the roster).
+
+Now that you've got a sense on the lore, let's talk about visual changes:
+- Enhance the visuals of the game to be more based arround the lore of the game (be it via colors or other stuff), adding a 1950s New York city aesthetic;
+- In the roster.csv, the description of the characters have been updated to fit more on who they are inside of the lore of the game. I don't know how you'd do it, so if you think of something, do everything else I asked for, give me that result, then give me the suggestions for this task;
+- The roles.csv has the colors for each Role and Subrole, so visually add that colors to those roles;
+- Also, whenever someone hovers over a role (main or sub), show the description of that role (the description is found in the roles.csv, enhance the text there so it is more clean);
+- For each built-in map, using lore_places.csv, give that map more of the aesthetic corresponding to that place. You may change tiles colors or aesthetic to fit more in, aswell as background, UI, etc. (make it feel like I'm actually playing in that place, and not just in a default map);
+
+That's it, go for it
