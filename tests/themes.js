@@ -2,6 +2,8 @@
 import assert from 'assert/strict';
 import { THEMES, DEFAULT_THEME, themeFor, sceneryHtml, plaqueHtml, patternDefs, PATTERNS, burrowInfo } from '../js/themes.js';
 import { MAPS, HEROES, ROLES, SUBROLES, PLACES } from '../js/data.js';
+import { homeKey, isHome, turfLines, dossierHtml, hireCardHtml } from '../js/lore.js';
+globalThis.Image = class { set src(v) { setTimeout(() => this.onerror?.(), 0); } }; // portraits probe for image files
 let n = 0; const ok = (m) => { n++; console.log('ok -', m); };
 
 // sRGB -> CIE Lab, then the CIE76 colour difference
@@ -36,5 +38,16 @@ const dE = (a, b) => Math.hypot(...lab(a).map((v, i) => v - lab(b)[i]));
 { // roles.csv: every hero role/subrole has a colour and a description
   for (const h of HEROES) if (h.class) { assert.ok(ROLES[h.class]?.desc && ROLES[h.class].color, h.class); assert.ok(SUBROLES[h.subrole]?.desc, h.subrole); assert.ok(ROLES[SUBROLES[h.subrole].parent], 'parent role'); }
   assert.equal(Object.keys(ROLES).length, 4); assert.equal(Object.keys(SUBROLES).length, 12); ok('roles: colours and descriptions for 4 roles + 12 subroles');
+}
+{ // lore: home burrows from roster.csv, case file, hire card
+  const impl = HEROES.filter((h) => h.implemented);
+  for (const h of impl) assert.ok(homeKey(h), `${h.name} has a home burrow`);
+  assert.equal(new Set(impl.map((h) => h.burrow)).size, 7, 'every burrow is home to someone');
+  const vanish = HEROES.find((h) => h.id === 'vanish'); assert.ok(isHome(vanish, 'Pride Map')); assert.ok(!isHome(vanish, 'Greed Map')); assert.ok(!isHome(vanish, 'My Custom Map'));
+  assert.deepEqual(turfLines('My Custom Map', [{ name: 'Vanish', def: vanish, team: 0 }], ['Blu', 'Red']), []);
+  const d = dossierHtml(vanish, { mapName: 'Pride Map' }); assert.ok(d.toLowerCase().includes('case file')); assert.ok(d.includes('home turf')); assert.ok(d.includes(vanish.blurb.slice(0, 20)));
+  assert.ok(!/A\.K\.A\.|Family|crew/i.test(d), 'no alias / crew in the case file');
+  assert.ok(!dossierHtml(vanish, { compact: true }).includes('dsr-note')); assert.ok(hireCardHtml(vanish).includes('Mercenary for hire') && hireCardHtml(vanish).includes(`${vanish.ap} AP`));
+  ok('lore: home burrows, case file, hire card');
 }
 console.log(`\n${n} theme checks passed`);

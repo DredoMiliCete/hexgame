@@ -3,6 +3,7 @@ import { toPixel, key, DIRS } from './hex.js';
 import { hgDir } from './maps.js';
 import { TILE_FILL, themeFor, sceneryHtml, plaqueHtml, themeStyle, patternDefs } from './themes.js';
 import { roleChips } from './roles.js';
+import { dossierHtml, isHome } from './lore.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
 import { heroImage, tokenImage, tileImage, onAssetLoad } from './assets.js';
@@ -217,6 +218,7 @@ export class GameView {
     const sel = this.sel === e.id; const tapped = g.isTapped(e) && !down;
     const riders = g.ents.filter((r) => r.attachedTo === e.id);
     let o = `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${e.x}" data-y="${e.y}" class="ent ${tapped ? 'tapped' : ''}" opacity="${tapped ? 0.6 : 1}">`;
+    if (hero && !down && isHome(e.def, g.mapName)) o += `<circle class="homering" r="${R + 6}" fill="none" stroke-width="2.5"/>`; // home turf glow
     o += `<circle r="${R}" fill="${down ? '#34404a' : '#1c2326'}" stroke="${sel ? GOLD : col}" stroke-width="${sel ? 5 : 3.5}"/>`;
     if (e.ctrl != null && e.ctrl !== e.owner) o += `<circle r="${R + 4}" fill="none" stroke="${e.ctrl === 0 ? BLU : RED}" stroke-width="2" stroke-dasharray="3 3"/>`;
     if (img) o += `<image href="${img}" x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" clip-path="url(#tokclip)" preserveAspectRatio="xMidYMid slice" ${R === S * 0.62 ? '' : `transform="scale(${R / (S * 0.62)})"`}/>`;
@@ -238,7 +240,7 @@ export class GameView {
     if (g.faceDown && e.kind === 'hero' && g.privateView !== e.owner) { el.innerHTML = '<p class="hint">Face-down hero.</p>'; return; }
     if (e.kind === 'hero') {
       const d = e.def;
-      el.innerHTML = `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(e.name)}</h4><div class="sub">${roleChips(d)}</div></div></div>
+      el.innerHTML = `${dossierHtml(d, { compact: true, mapName: g.mapName })}
         <div class="stats">HP ${Math.max(0, e.hp)}/${e.maxHp} · Move ${g.moveOf(e)} · ATK ${g.atkOf(e)} · Reach ${g.reachOf(e)} · AP ${e.ap}</div>
         <div class="chips">${this.chips(e).map((c) => `<span>${esc(c)}</span>`).join('')}</div>
         ${d.abilities.map((a) => `<p class="ab"><b>${esc(a.name)}</b>${a.passive ? ' <em>(passive)</em>' : ` <em>(${a.cost} AP)</em>`}<br>${esc(a.text)}</p>`).join('')}`;

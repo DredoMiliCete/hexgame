@@ -159,6 +159,7 @@ export const THEMES = {
 export const DEFAULT_THEME = { ...THEMES.pride, key: 'pride', sin: '', tag: 'Downtown', custom: true };
 export const TILE_FILL = THEMES.pride.tiles; // default tile colours (map maker palette)
 const norm = (n) => String(n || '').replace(/ Map$/, '').trim().toLowerCase();
+export const burrowKeyOf = (mapName) => (THEMES[norm(mapName)] ? norm(mapName) : null); // 'Pride Map' -> 'pride'; custom maps -> null
 export const themeFor = (mapName) => THEMES[norm(mapName)] || DEFAULT_THEME;
 export const burrowInfo = (theme) => { const p = PLACES[theme.sin] || {}; return { title: p.name || theme.sin || 'Downtown', district: theme.tag, desc: p.desc || 'Anywhere in the city' }; };
 

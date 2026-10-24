@@ -122,3 +122,45 @@ input, select { border-radius: 3px; border-color: var(--deco); background: var(-
 @keyframes flick { 0%, 100% { opacity: 1; } 92% { opacity: .55; } 94% { opacity: 1; } 96% { opacity: .4; } 97% { opacity: 1; } }
 
 @media (max-width: 1000px) { .plaque { max-width: 160px; } .plaque em { display: none; } .menuin { padding: 26px 24px 32px; } }
+
+/* ===== case file (dossier), "mercenary for hire" card, home turf ===== */
+.dossier { --paper: #e8dec4; --ink2: #2b2620; --brown: #7a6c4e; max-width: 560px; margin: 0 0 12px; padding: 8px 14px 12px; color: var(--ink2); position: relative;
+  background: repeating-linear-gradient(180deg, transparent 0 23px, rgba(90, 70, 30, .08) 23px 24px), var(--paper); border: 1px solid #b3a581; border-top: 6px solid var(--hc, #b3a581); border-radius: 2px 2px 3px 3px; box-shadow: 0 6px 18px rgba(0, 0, 0, .45); }
+.dsr-top { display: flex; justify-content: space-between; align-items: center; font: 700 10px/1 "American Typewriter", "Courier New", Courier, monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--brown); padding-bottom: 6px; border-bottom: 1px dashed #b3a581; }
+.dsr-stamp { transform: rotate(-5deg); border: 2px solid var(--rc); color: color-mix(in srgb, var(--rc) 70%, #000); padding: 2px 9px; font-size: 11px; letter-spacing: .18em; opacity: .88; border-radius: 2px; }
+.dsr-body { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0 4px; }
+.mug { position: relative; flex: none; padding: 7px 20px 7px 7px; background: #f6f0de; border: 1px solid #b3a581; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); transform: rotate(-2deg); }
+.mug .por { border-color: var(--hc); }
+.ruler { position: absolute; right: 4px; top: 6px; bottom: 6px; width: 10px; background: repeating-linear-gradient(180deg, #3a3326 0 1px, transparent 1px 8px); border-right: 1px solid #3a3326; opacity: .7; }
+.dossier dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; align-items: center; font-size: 13px; min-width: 0; }
+.dossier dt { font: 700 10px/1.2 "American Typewriter", "Courier New", Courier, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--brown); }
+.dossier dd { margin: 0; min-width: 0; } .dossier dd b { font-family: var(--head); font-size: 17px; letter-spacing: .1em; text-transform: uppercase; }
+.dossier .typed, .dsr-note { font-family: "American Typewriter", "Courier New", Courier, monospace; }
+.dsr-note { margin: 6px 0 0; padding-top: 8px; border-top: 1px dashed #b3a581; font-size: 13px; line-height: 1.55; color: var(--ink2); font-style: normal; }
+.dossier .rchips { vertical-align: middle; }
+.bbadge { display: inline-block; padding: 0 7px; font-size: 10.5px; line-height: 17px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 2px; color: var(--ink2); }
+.bbadge { background: #1c1a16; border: 1px solid var(--bc); color: var(--bc); }
+.hometag { display: inline-block; margin-left: 4px; padding: 0 6px; font-size: 10px; line-height: 16px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: #f0cf72; color: #5c4300; border-radius: 2px; }
+.dossier.compact { max-width: none; padding: 6px 10px 8px; margin-bottom: 8px; } .dossier.compact .dsr-body { padding: 8px 0 2px; gap: 10px; } .dossier.compact dl { font-size: 12px; gap: 4px 8px; }
+.dossier.compact dd b { font-size: 15px; } .dossier.compact .mug .por.lg { width: 48px; height: 48px; }
+
+.hirecard { max-width: 460px; margin: 0 0 14px; padding: 10px 18px 12px; text-align: center; background: #efe6cf; color: #2b2620; border: 2px solid #2b2620; border-top: 7px solid var(--hc, #2b2620); outline: 1px solid #8a7a52; outline-offset: -7px; box-shadow: 0 8px 20px rgba(0, 0, 0, .5); transform: rotate(-.6deg); }
+.hc-top { font: 700 10px/1 "American Typewriter", "Courier New", monospace; letter-spacing: .34em; text-transform: uppercase; color: #7a6c4e; margin-top: 2px; }
+.hc-name { font-family: var(--head); font-size: 30px; letter-spacing: .16em; text-transform: uppercase; margin: 6px 0 2px; }
+.hc-line { font: italic 13px/1.4 "American Typewriter", "Courier New", monospace; margin: 8px 0 10px; }
+.hc-foot { display: flex; justify-content: center; gap: 12px; border-top: 1px dashed #8a7a52; padding-top: 7px; font-size: 12px; letter-spacing: .04em; }
+
+.homering { stroke: var(--gold); pointer-events: none; filter: drop-shadow(0 0 5px var(--gold)); }
+@media (prefers-reduced-motion: no-preference) { .homering { animation: homeglow 2.2s ease-in-out infinite alternate; } }
+@keyframes homeglow { from { opacity: .45; } to { opacity: 1; } }
+.apopt { display: flex; gap: 14px; } .apopt .field { flex: 1; margin: 0; }
+.dtop { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 4px; }
+.dtop > .hirecard, .dtop > .dossier { flex: 1 1 360px; margin: 0; }
+.dtop > .hirecard { align-self: center; }
+/* compact case file inside the (narrow) in-game info panel: labels hidden, badges wrap */
+.dossier.compact .dsr-top { font-size: 9px; letter-spacing: .14em; }
+.dossier.compact dt { display: none; } .dossier.compact dl { grid-template-columns: 1fr; gap: 3px; }
+.dossier.compact .mug { padding: 5px 14px 5px 5px; } .dossier.compact .ruler { width: 7px; right: 3px; }
+.dossier.compact .bbadge { white-space: normal; line-height: 14px; padding: 1px 6px; }
+.dossier.compact .rchips { gap: 3px; }
+.dossier.compact .dsr-stamp { font-size: 9px; padding: 1px 6px; }

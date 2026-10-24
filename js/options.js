@@ -16,6 +16,11 @@ export function setMaxMapSize(n) {
   const v = Math.min(MAX_MAP_SIZE_LIMIT, Math.max(DEFAULT_MAX_MAP_SIZE, Math.floor(Number(n)) || DEFAULT_MAX_MAP_SIZE));
   return write({ maxMapSize: v }) ? v : null;
 }
+// AP each team starts every round with (before gathering heroes): [Blu, Red], default [0, 0].
+export const MAX_START_AP = 20;
+const clampAP = (n) => Math.min(MAX_START_AP, Math.max(0, Math.floor(Number(n)) || 0));
+export function getStartAP() { const a = read().startAP; return Array.isArray(a) ? [clampAP(a[0]), clampAP(a[1])] : [0, 0]; }
+export const setStartAP = (blu, red) => (write({ startAP: [clampAP(blu), clampAP(red)] }) ? getStartAP() : null);
 // "Editable Heroes": when on, the Hero abilities screen lets you change HP / Move / Attack / Reach / AP (off by default).
 export const getEditableHeroes = () => read().editableHeroes === true;
 export const setEditableHeroes = (on) => write({ editableHeroes: !!on });

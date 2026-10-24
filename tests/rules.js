@@ -117,6 +117,19 @@ let n = 0; const ok = (name) => { n++; console.log('ok -', name); };
   const m = new Game('Test MP', [['driver'], ['hail']], io, 0); assert.equal(m.terr(1, 0), null); assert.equal(m.terr(5, 0), null); assert.equal(m.terr(8, 0), 1);
   ok('Money Point territory follows its neighbours (both or neither = neutral)');
 }
+{ // Options: AP each team starts every round with (default 0)
+  const gp = async (opts) => { const g = new Game('Pride Map', [['driver'], ['hail']], io, 0, opts); g.startRound(); for (const t of [0, 1]) await g.gatherPhase(t); return g; };
+  let g = await gp(); assert.deepEqual(g.startAP, [0, 0]); assert.deepEqual(g.pool, [0, 0]); assert.ok(!g.hasAP(0));
+  g = await gp({ startAP: [2, 1] }); assert.deepEqual(g.pool, [2, 1]); assert.ok(g.hasAP(0) && g.hasAP(1)); assert.ok(g.logs.some((l) => /\+2 starting AP/.test(l)));
+  g = await gp({ startAP: [-3, 'x'] }); assert.deepEqual(g.startAP, [0, 0]);
+  const h = new Game('Pride Map', [['driver'], ['hail']], { ...io, pickHeroes: async (t, c) => [c[0].id] }, 0, { startAP: [2, 0] }); h.startRound(); await h.gatherPhase(0); assert.equal(h.pool[0], 2 + h.heroes(0)[0].ap); // gathered heroes stack on top
+  ok('starting AP option: per team, default 0, stacks with gathered AP');
+}
+{ // lore: burrow flavour + home turf are logged in round 1
+  const g = new Game('Greed Map', [['glove', 'income', 'vanish'], ['sailor']], io, 0); g.startRound();
+  assert.ok(g.logs.some((l) => /^GREED:/.test(l))); assert.ok(g.logs.some((l) => /Home turf: Glove \(Blu\), Income \(Blu\)/.test(l)));
+  ok('round 1 log: burrow flavour, home turf heroes');
+}
 { // Acorn Rattle ignores Tentacle Grab moves but reacts to normal moves
   const g = mk(['clark', 'oak'], ['hail']); clear(g); const c = g.findHero(0, 'clark'), o = g.findHero(0, 'oak'), h = g.heroes(1)[0];
   put(g, c, 4, 4); put(g, o, 7, 6); put(g, h, 7, 8); o.tapped = false; let asked = 0;

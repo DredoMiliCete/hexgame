@@ -13,6 +13,7 @@ def clean_name(name):
 
 heroes = []
 rows = list(csv.reader(open(os.path.join(D, 'roster.csv'), encoding='utf-8')))
+COL = {n.strip().lower(): i for i, n in enumerate(rows[0]) if n.strip()}  # extra columns are looked up by header name (burrow)
 for r in rows[1:]:
     r = r + [''] * (40 - len(r))
     num = r[21].strip()
@@ -23,6 +24,7 @@ for r in rows[1:]:
     h = {
         'num': num, 'nick': nick, 'image': r[2].strip(),
         'blurb': r[4].strip(), 'class': r[7].strip(), 'subrole': r[8].strip(),
+        'burrow': r[COL['burrow']].strip().lower() if 'burrow' in COL else '',
     }
     if full:
         h.update({'id': full.lower(), 'name': full, 'implemented': True,

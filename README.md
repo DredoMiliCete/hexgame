@@ -34,9 +34,14 @@ The game is set in a high-fantasy city inspired by 1950s New York, split in 7 bu
 - **Roles:** the hero chips use the colours from `data/roles.csv`; hovering a role or subrole shows its description (and parent role / resemblance). The descriptions in `roles.csv` were cleaned up.
 - The menu shows a different burrow every time; the map selection screen shows a card for the chosen burrow.
 - Tile images in `assets/tiles/` still win over the theme colours if you add them.
+- **Case file:** every hero shows a "case file" (mugshot, role stamp, name, specialty = the role chips, home turf, and the Card Description typed out as a note). The in-game info panel shows a compact version.
+- **Mercenary for hire:** while drafting, hovering a hero also shows a business-card style "for hire" card (first line of the description and the AP rate).
+- **Home burrows:** `data/roster.csv` has an extra `burrow` column (`pride`, `wrath`, `gluttony`, `greed`, `lust`, `envy` or `sloth`). **The current assignments are placeholders inferred from the descriptions: edit them in the CSV and run `python3 tools/build_data.py`.**
+- **Home turf:** a hero playing on the map of their home burrow gets a glowing ring on the board and a "home turf" tag in the info panel; round 1 of the game log names the burrow and the home-turf heroes. It is purely cosmetic: no gameplay effect.
 
 ## Options
 - **Maximum map size** for the map maker (default 13).
+- **Starting AP:** AP each team starts every round with, before gathering heroes (Blu and Red separately, 0 to 20, default 0 for both). Gathered heroes and the dead-hero bonus stack on top; the value is applied to games started after saving.
 - **Editable Heroes** (off by default): in *Hero abilities*, each hero gets HP / Move / Attack / Reach / AP inputs (**Save stats**, **Reset to CSV**). Edits are used by draft, constructed mode and the game while the option is on; turning it off goes back to roster.csv (the edits are kept).
 - **Reset game cache**: removes all custom compositions, custom maps, edited hero stats and the loaded-image cache (images are fetched again from `assets/`). The options themselves are kept.
 
@@ -55,7 +60,7 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - `js/engine.js` rules (no DOM). All player decisions go through an `io` object (`pickTile`, `choose`, `roll`, `pickHeroes`, `command`, `hotseat`) -
   this is the seam for the future two-window / two-PC mode: run the engine in one place and forward `io` calls to the right client.
 - `js/abilities.js` the 16 implemented heroes (+ tokens)  - `js/ui.js` board, HUD, io implementation  - `js/main.js` menus/draft
-- `js/themes.js` burrow themes, `js/roles.js` role chips + tooltip
+- `js/themes.js` burrow themes, `js/roles.js` role chips + tooltip, `js/lore.js` home turf, case file and hire card
 - `js/maps.js` map registry (built-in + custom), save rules (`validateMap`)  - `js/mapedit.js` editing model (teleport rules, undo)  - `js/mapmaker.js` map maker screens  - `js/options.js` options
 - `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks, `tests/themes.js` theme + role checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
 

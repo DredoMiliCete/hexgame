@@ -4,6 +4,7 @@ import { HEROES, TILE_INFO } from './data.js';
 import { getMapTiles, hgDir } from './maps.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
+import { turfLines } from './lore.js';
 import { DIR_LIST, DIR_LABEL, key, step, hexDist, OPP, DIRS } from './hex.js';
 import { D, heroDefs, gatherHook, placedHook, rand } from './abilities.js';
 
@@ -13,8 +14,10 @@ const BOXES = { WB: ['Wood Box', 1], SB: ['Steel Box', 3] };
 export const heroDef = (id) => HEROES.find((h) => h.id === id);
 
 export class Game {
-  constructor(mapName, teams, io, first = 0) {
+  // opts.startAP: [Blu, Red] AP each team starts every round with, before gathering (Options screen; default 0)
+  constructor(mapName, teams, io, first = 0, opts = {}) {
     this.io = io; this.mapName = mapName; this.first = first; this.startPlayer = first;
+    this.startAP = [0, 1].map((t) => Math.max(0, Math.floor(Number(opts.startAP?.[t])) || 0));
     this.tiles = new Map();
     const mapTiles = getMapTiles(mapName);
     if (!mapTiles) throw new Error(`Unknown map: ${mapName}`);
@@ -562,6 +565,10 @@ export class Game {
     }
     this.shieldsDestroyed = [0, 0]; this.oilUses = [0, 0]; this.passed = [false, false];
     this.log(`── Round ${this.round} ── ${this.name(this.first)} goes first.`);
+    if (this.round === 1) {
+      for (const l of turfLines(this.mapName, this.ents.filter((e) => e.kind === 'hero').map((e) => ({ name: e.name, def: e.def, team: this.team(e) })), TEAM_NAMES)) this.log(l);
+      if (this.startAP.some((n) => n > 0)) this.log(`Starting AP each round: ${this.name(0)} ${this.startAP[0]}, ${this.name(1)} ${this.startAP[1]}.`);
+    }
   }
   async gatherPhase(t) {
     const hs = this.heroes(t).filter((h) => !h.dead);
@@ -569,7 +576,7 @@ export class Game {
     for (const h of prev) { h.gathered = false; h.tapped = false; }
     const cand = hs.filter((h) => !prev.includes(h));
     const forced = cand.filter((h) => h.def.id === 'driver' && h.sinceGather >= 2).map((h) => h.id);
-    this.pool[t] = 0; this.glovePool[t] = 0;
+    this.pool[t] = this.startAP[t]; this.glovePool[t] = 0;
     let picks = [];
     if (cand.length) picks = await this.io.pickHeroes(t, cand, CONFIG.MAX_TAPS, forced);
     for (const h of hs) { h.sinceGather = picks.includes(h.id) ? 0 : h.sinceGather + 1; }
@@ -578,7 +585,7 @@ export class Game {
     const dead = this.heroes(t).filter((h) => h.dead).length;
     const bonus = CONFIG.DEAD_AP[Math.min(3, dead)];
     this.pool[t] += bonus;
-    this.log(`${this.name(t)} gathers ${gathered.map((h) => h.name).join(', ') || 'nobody'}${bonus ? ` (+${bonus} AP for dead heroes)` : ''}: ${this.pool[t]} AP.`);
+    this.log(`${this.name(t)} gathers ${gathered.map((h) => h.name).join(', ') || 'nobody'}${bonus ? ` (+${bonus} AP for dead heroes)` : ''}${this.startAP[t] ? ` (+${this.startAP[t]} starting AP)` : ''}: ${this.pool[t]} AP.`);
     for (const h of gathered) await gatherHook(this, h);
     await this.gamble(t, gathered);
   }

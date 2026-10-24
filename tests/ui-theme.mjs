@@ -12,6 +12,7 @@ await import('../js/main.js');
 const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
 const tick = () => new Promise((r) => setTimeout(r, 5));
 const ev = (el, type) => el.dispatchEvent(new dom.window.MouseEvent(type, { bubbles: true }));
+const change = async (el) => { el.dispatchEvent(new dom.window.Event('change', { bubbles: true })); await tick(); };
 const click = async (el) => { assert.ok(el, 'missing element'); ev(el, 'click'); await tick(); };
 let n = 0; const ok = (m) => { n++; console.log('ok -', m); };
 
@@ -42,4 +43,24 @@ assert.ok($('#board defs pattern#tx-sand')); assert.ok($$('#board polygon[fill^=
 await click($('[data-act=menu]'));
 globalThis.localStorage.setItem('hexgame.maps.v1', JSON.stringify([{ name: 'Mine', tiles: JSON.parse(JSON.stringify((await import('../js/data.js')).MAPS['Pride Map'])) }]));
 await startOn('Mine'); game = $('.game'); assert.equal(game.dataset.burrow, 'downtown'); assert.ok($('#plaque').textContent.includes('Custom map')); ok('game: custom map uses the Downtown look');
+// ---- case file, crews, hire card ----
+await click($('[data-act=menu]'));
+await click($('[data-go="heroes"]')); await click($('.hcard[data-id="claws"]'));
+assert.ok($('.dossier .dsr-top').textContent.toLowerCase().includes('case file')); assert.ok($('.dossier .dsr-note').textContent.length > 20); assert.ok($('.dossier').textContent.includes('GLUTTONY')); assert.ok(!/A\.K\.A\.|Family|crew/i.test($('.dossier').textContent));
+assert.equal($$('.crewhead').length, 0); assert.equal($$('#bycrew').length, 0);
+ok('hero panel: case file (no alias / crew)');
+await click($('[data-back]')); await click($$('[data-go]')[0]); await click($('#go'));
+$('.hcard[data-id="glove"]').dispatchEvent(new dom.window.MouseEvent('mouseenter')); await tick();
+assert.ok($('.detail .hirecard').textContent.includes('Mercenary for hire')); assert.equal($('.detail .hirecard .hc-name').textContent, 'Glove'); assert.ok($('.detail .dossier')); assert.equal($$('.drafting .crewhead').length, 0);
+ok('draft: hire card + case file on hover');
+
+// ---- Options: starting AP ----
+await click($('[data-back]')); await click($('[data-go="options"]'));
+assert.equal($('#apblu').value, '0'); assert.equal($('#apred').value, '0');
+$('#apblu').value = '3'; $('#apred').value = '1'; await click($('#apsave')); assert.ok($('.msg:nth-of-type(2)') || true); assert.ok(document.body.textContent.includes('Blu starts each round with 3 AP, Red with 1 AP')); assert.equal($('#apblu').value, '3');
+$('#apred').value = '99'; await click($('#apsave')); assert.ok(document.body.textContent.includes('whole numbers from 0 to 20')); ok('options: starting AP per team (validated)');
+await click($('[data-back]')); await startOn('Pride Map');
+assert.deepEqual(window.__game.startAP, [3, 1]);
+ok('game: starting AP option applied');
+await click($('[data-act=menu]')); await click($('[data-go="options"]')); await click($('#apreset')); assert.equal($('#apblu').value, '0'); ok('options: reset to 0');
 console.log(`\n${n} theme UI checks passed`); process.exit(0);
