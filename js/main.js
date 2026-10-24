@@ -7,6 +7,8 @@ import { onAssetLoad, tokenImage } from './assets.js';
 import { TOKENS, HERO_TOKENS } from './tokens.js';
 import { portrait, portraitById, heroColor } from './colors.js';
 import { loadComps, saveComps, newId } from './comps.js';
+import { roleChips, initRoleTips } from './roles.js';
+import { themeFor, sceneryHtml, themeStyle, burrowInfo, burrowKeys, THEMES } from './themes.js';
 import { allMapNames, isBuiltinMap } from './maps.js';
 import { mapMaker } from './mapmaker.js';
 import { getMaxMapSize, setMaxMapSize, DEFAULT_MAX_MAP_SIZE, MAX_MAP_SIZE_LIMIT, getEditableHeroes, setEditableHeroes, resetGameCache } from './options.js';
@@ -18,6 +20,7 @@ const playable = HEROES.filter((h) => h.implemented);
 const byId = (id) => HEROES.find((h) => h.id === id);
 let rerender = null;
 onAssetLoad(() => rerender?.());
+initRoleTips();
 
 function statsForm(d) {
   const base = baseStats(d.id); const ov = getHeroOverride(d.id);
@@ -27,7 +30,7 @@ function statsForm(d) {
 function heroDetail(d, { tokens = false, editable = false } = {}) {
   if (!d) return '<p class="hint">Hover or click a hero to read its abilities.</p>';
   const toks = tokens ? (HERO_TOKENS[d.id] || []) : [];
-  return `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(d.name)}</h4><div class="sub">${esc(d.class)} · ${esc(d.subrole)}</div></div></div>
+  return `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(d.name)}</h4><div class="sub">${roleChips(d)}</div></div></div>
     ${d.implemented ? `${editable ? statsForm(d) : `<div class="stats">HP ${d.hp} · Move ${d.move} · ATK ${d.atk} · Reach ${d.reach} · AP ${d.ap}${getHeroOverride(d.id) && getEditableHeroes() ? ' <small>(edited)</small>' : ''}</div>`}
     ${d.blurb ? `<p class="blurb">${esc(d.blurb)}</p>` : ''}
     ${d.abilities.map((a) => `<p class="ab"><b>${esc(a.name)}</b>${a.passive ? ' <em>(passive)</em>' : ` <em>(${a.cost} AP)</em>`}<br>${esc(a.text)}</p>`).join('')}
@@ -42,13 +45,15 @@ function tokenDetail(kind) {
     <div class="toklinks"><span>Created by:</span>${makers.map((h) => `<button data-hero="${h.id}">${esc(h.name)}</button>`).join('')}</div>`;
 }
 function card(d, extra = '', attrs = '') {
-  return `<button class="hcard ${d.implemented ? '' : 'locked'} ${extra}" data-id="${d.id}" style="--hc:${heroColor(d.id)}" ${attrs}>${portrait(d)}<span class="hcn">${esc(d.name)}</span><span class="hcs">${esc(d.class)} · ${esc(d.subrole)}</span></button>`;
+  return `<button class="hcard ${d.implemented ? '' : 'locked'} ${extra}" data-id="${d.id}" style="--hc:${heroColor(d.id)}" ${attrs}>${portrait(d)}<span class="hcn">${esc(d.name)}</span><span class="hcs">${roleChips(d)}</span></button>`;
 }
 const head = (title, extra = '') => `<div class="pagehead"><button data-back>Back</button><h2>${title}</h2>${extra}</div>`;
 
 function menu() {
   rerender = null;
-  app.innerHTML = `<div class="menu"><div class="menuin"><h1>Hex board game</h1><p class="tag">Two-player playtest table</p>
+  const theme = THEMES[burrowKeys()[Math.floor(Math.random() * burrowKeys().length)]]; const bi = burrowInfo(theme); // a different burrow behind the menu each visit
+  app.innerHTML = `<div class="menu" data-burrow="${theme.key}" style="${themeStyle(theme)}"><div class="scenery">${sceneryHtml(theme)}</div><div class="menuin"><div class="sunburst"></div>
+    <p class="kicker">Seven burrows · Two families · One block</p><h1>Turfwars</h1><p class="tag">Mercenaries for hire. Turf to take. A city that never sleeps.</p>
     <div class="menubtns">
       <button class="big" data-go="draft">Play draft mode</button>
       <button class="big" data-go="constructed">Play constructed mode</button>
@@ -56,7 +61,7 @@ function menu() {
       <button class="big" data-go="heroes">Hero abilities</button>
       <button class="big" data-go="maps">Map maker</button>
       <button class="big" data-go="options">Options</button>
-    </div></div></div>`;
+    </div></div><p class="burrowline">Tonight in <b>${esc(bi.title.toUpperCase())}</b> · ${esc(bi.district)}</p></div>`;
   app.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => ({ draft: () => setup('draft'), constructed: () => setup('constructed'), comps: compbuilder, heroes: heroesPanel, maps: openMapMaker, options: optionsPage }[b.dataset.go]())));
 }
 
@@ -145,15 +150,26 @@ function compbuilder() {
   rerender = draw; draw();
 }
 
+// preview of a burrow (map) on the setup screen
+function burrowCard(mapName) {
+  if (!mapName) return '<div class="bcard random"><div class="bctext"><small>Map</small><b>RANDOM</b><em>One of the burrows will be picked when you continue.</em></div></div>';
+  const th = themeFor(mapName); const bi = burrowInfo(th);
+  const sw = ['BN', 'RN', 'MM', 'WW', 'MP'].map((c) => `<i style="background:${th.tiles[c]}"></i>`).join('');
+  return `<div class="bcard" data-burrow="${th.custom ? 'downtown' : th.key}" style="${themeStyle(th)}"><div class="scenery">${sceneryHtml(th)}</div><div class="bctext"><small>${th.custom ? 'Custom map' : 'Burrow of'}</small><b>${esc(bi.title.toUpperCase())}</b><span>${esc(bi.district)}</span><em>${esc(bi.desc)}</em><div class="sw">${sw}</div></div></div>`;
+}
+
 function setup(mode) {
   rerender = null;
   const maps = allMapNames();
   app.innerHTML = `<div class="page narrow">${head(mode === 'draft' ? 'Draft mode' : 'Constructed mode')}
     <label class="field">Map<select id="map"><option value="">Random</option>${maps.map((m) => `<option value="${esc(m)}">${esc(m)}${isBuiltinMap(m) ? '' : ' (custom)'}</option>`).join('')}</select></label>
+    <div id="burrowcard"></div>
     <label class="field">Starting player<select id="first"><option value="">Random</option><option value="0">Blu</option><option value="1">Red</option></select></label>
     <p class="hint">${mode === 'draft' ? 'The starting player picks 1 hero, then players alternate picking 2 at a time until each team has 7.' : 'Each player picks a team of 7 heroes (or loads a saved composition). Heroes may repeat across teams, not inside one team.'}</p>
     <button class="big" id="go">Continue</button></div>`;
   app.querySelector('[data-back]').onclick = menu;
+  const sel = app.querySelector('#map'); const bc = app.querySelector('#burrowcard');
+  sel.onchange = () => { bc.innerHTML = burrowCard(sel.value); }; bc.innerHTML = burrowCard(sel.value);
   app.querySelector('#go').onclick = () => {
     const map = app.querySelector('#map').value || maps[Math.floor(Math.random() * maps.length)];
     const f = app.querySelector('#first').value; const first = f === '' ? Math.floor(Math.random() * 2) : Number(f);

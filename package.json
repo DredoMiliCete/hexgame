@@ -1,1 +1,1 @@
-{ "name": "hex-game-playtest", "version": "0.1.0", "type": "module", "private": true, "scripts": { "test": "node tests/rules.js && node tests/maps.js && node tests/sim.js 20" } }
+{ "name": "hex-game-playtest", "version": "0.1.0", "type": "module", "private": true, "scripts": { "test": "node tests/rules.js && node tests/maps.js && node tests/themes.js && node tests/sim.js 20" } }

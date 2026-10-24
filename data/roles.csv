@@ -1,23 +1,23 @@
 ,,,,,,
 ,role,role description,Color,,Subrole Of,Resembles Other Role
-,Enforcer,"""enforces the battle lines"". the main frontline, enforcers mark where each team should be in a fight and are the ones to start it. they create the space for the rest of their team to capitalize",#e5a93b,,,
-,Duelist,"""duel opponents"". duelists main job is to pick their target and kill it. they can do this either supported by their team, or alone. excel at 1v1",#c83333,,,
-,Controller,"""control the enemy's options"". either via debuffs, taxing, crowd control, area damage, or any other means, the job of a controller is to dictate what the opponent can and can't do, while sometimes giving support to their own team",#2a75b3,,,
-,Fixer,"""fixes the match in their favour"". a fixer can come in many shapes and sizes. either not proficient in combat but with an arsenal of supporting utility, or increasing board presence, they provide serious value to a win",#358c4f,,,
+,Enforcer,"“Enforces the battle lines.” The main frontline. Enforcers mark where each team should stand in a fight and are the ones who start it, creating space for the rest of their team to capitalize.",#e5a93b,,,
+,Duelist,"“Duels opponents.” A duelist's main job is to pick a target and kill it, either supported by their team or alone. Duelists excel at 1v1 fights.",#c83333,,,
+,Controller,"“Controls the enemy's options.” Through debuffs, taxing, crowd control, area damage or any other means, a controller dictates what the opponent can and can't do, sometimes while supporting their own team.",#2a75b3,,,
+,Fixer,"“Fixes the match in their favour.” Fixers come in many shapes and sizes. Some are not proficient in combat but carry an arsenal of supporting utility; others increase board presence. Either way, they add serious value to a win.",#358c4f,,,
 ,,,,,,
 ,SUBROLES,,,,,
-,Protector,"focused on protecting either itself or teammates. wants to survive a lot. not the best at progressing the frontline, but great at holding it",#7c9352,,Enforcer,Fixer
-,Bruiser,wants to do a lot of damage with a lot of health. somewhat individualistic. advances the frontline by killing the enemies frontline,#df7b43,,Enforcer,Duelist
-,Engager,"wants to get in behind the enemies frontline, and then crunch it with the rest of its team. high movement, and some survivability",#e1b854,,Enforcer,Controller
+,Protector,"Focused on protecting themselves or their teammates. Wants to survive a long time. Not the best at pushing the frontline forward, but great at holding it.",#7c9352,,Enforcer,Fixer
+,Bruiser,Deals a lot of damage while having a lot of health. Somewhat individualistic. Advances the frontline by killing the enemy frontline.,#df7b43,,Enforcer,Duelist
+,Engager,Wants to get behind the enemy frontline and crunch it together with their team. High movement and some survivability.,#e1b854,,Enforcer,Controller
 ,,,,,,
-,Damage,plays mainly in the frontline supporting the enforcers by pressuring the enemies frontline. can both create scraps (put enemies low) or take scraps (kill low enemis),#d04b36,,Duelist,Enforcer
-,Pick,"plays further away from the team, can either be VERY long range, VERY close range, or in between. wants to take scraps, or just one shot enemies even",#b82e56,,Duelist,Controller
-,Movement,"can play with the pack, go alone, or go with another ally, has very high movement and escapability. wants to create scraps",#992d54,,Duelist,Fixer
+,Damage,"Plays mainly in the frontline, supporting the Enforcers by pressuring the enemy frontline. Can both create scraps (put enemies low) and take scraps (finish off low enemies).",#d04b36,,Duelist,Enforcer
+,Pick,"Plays further away from the team: VERY long range, VERY close range, or somewhere in between. Wants to take scraps, or even one-shot enemies.",#b82e56,,Duelist,Controller
+,Movement,"Can play with the pack, alone, or alongside an ally. Very high movement and escapability. Wants to create scraps.",#992d54,,Duelist,Fixer
 ,,,,,,
-,Denial,"controls by denying the enemy team's options. can deny space, normally use structures, or have stuns",#1c4b82,,Controller,Enforcer
-,Manipulation,"controls by weaking the enemy team. has a lot of debuffs, or board manipulation tools",#4c74cd,,Controller,Fixer
-,Area,"controls by punishing the enemy team. great at area and crowd control, either by damaging an area or doing other stuff.",#33379e,,Controller,Duelist
+,Denial,Controls by denying the enemy team's options: denying space (usually with structures) or stunning.,#1c4b82,,Controller,Enforcer
+,Manipulation,"Controls by weakening the enemy team, with plenty of debuffs or board manipulation tools.",#4c74cd,,Controller,Fixer
+,Area,Controls by punishing the enemy team. Great at area damage and crowd control.,#33379e,,Controller,Duelist
 ,,,,,,
-,Presence,"they create the advantage for their team by having more entities on the board than the opponents via creating them, and giving the team more options",#276f43,,Fixer,Duelist
-,Utility,"have loads of utility, mainly utility to help the team and not debuff the opponents, be it buffs, movement option or action economy",#2b9371,,Fixer,Controller
-,Sustain,"their main goal is to have allies not die. they can heal them, prevent damage, help them escape, the main goal is to ensure the team is kept in a fight",#68b258,,Fixer,Enforcer
+,Presence,Creates an advantage by having more entities on the board than the opponents: creating them and giving the team more options.,#276f43,,Fixer,Duelist
+,Utility,"Brings loads of utility, mainly to help the team rather than debuff the opponents: buffs, movement options or action economy.",#2b9371,,Fixer,Controller
+,Sustain,"Main goal is to keep allies alive: healing them, preventing damage or helping them escape, so the team stays in the fight.",#68b258,,Fixer,Enforcer

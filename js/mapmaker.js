@@ -3,6 +3,7 @@
 import { toPixel, key, DIR_LIST, DIR_LABEL } from './hex.js';
 import { TILE_INFO } from './data.js';
 import { TILE_FILL, hex, tileDecor } from './ui.js';
+import { themeFor } from './themes.js';
 import { tileImage } from './assets.js';
 import { MapModel } from './mapedit.js';
 import { allMapNames, getMapTiles, isBuiltinMap, saveCustomMap, deleteCustomMap, customMapExists, validateMap, countTiles, mapExtent, SPAWN_MIN } from './maps.js';
@@ -22,12 +23,12 @@ const COLOR_NAME = { B: 'Blu', R: 'Red' };
 const head = (title, extra = '') => `<div class="pagehead"><button data-back>Back</button><h2>${title}</h2>${extra}</div>`;
 
 // Static SVG preview of a map (list thumbnails).
-function previewSvg(tiles, s = 8) {
+function previewSvg(tiles, s = 8, fills = TILE_FILL) {
   const P = (x, y) => toPixel(x, y, s);
   const xs = tiles.map((t) => P(t.x, t.y)[0]), ys = tiles.map((t) => P(t.x, t.y)[1]);
   if (!tiles.length) return '<div class="mmempty">Empty</div>';
   const pad = s * 1.2, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) - x0 + pad, h = Math.max(...ys) - y0 + pad;
-  const body = tiles.map((t) => { const [cx, cy] = P(t.x, t.y); return `<polygon transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" points="${hex(0, 0, s - 0.6)}" fill="${TILE_FILL[t.t] || '#888'}"/>`; }).join('');
+  const body = tiles.map((t) => { const [cx, cy] = P(t.x, t.y); return `<polygon transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" points="${hex(0, 0, s - 0.6)}" fill="${fills[t.t] || '#888'}"/>`; }).join('');
   return `<svg class="mmthumb" viewBox="${x0.toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 }
 
@@ -44,7 +45,7 @@ export function mapMaker({ app, back, setRerender }) {
         <p class="msg">${esc(note)}</p>
         <div class="mmlist">${names.map((n, i) => {
     const tiles = getMapTiles(n); const c = countTiles(tiles); const ext = mapExtent(tiles); const built = isBuiltinMap(n);
-    return `<div class="mmcard"><div class="mmprev">${previewSvg(tiles)}</div><div class="mmcinfo"><b>${esc(n)}</b> ${built ? '<small>built-in</small>' : '<small class="mine">custom</small>'}
+    return `<div class="mmcard"><div class="mmprev">${previewSvg(tiles, 8, themeFor(n).tiles)}</div><div class="mmcinfo"><b>${esc(n)}</b> ${built ? '<small>built-in</small>' : '<small class="mine">custom</small>'}
             <div class="hint">${tiles.length} tiles · ${ext.w}×${ext.h} · <span class="t0">${c.BS || 0} Blu</span> / <span class="t1">${c.RS || 0} Red</span> spawn</div>
             <div class="opts"><button data-edit="${i}">Edit</button>${built ? '' : `<button data-del="${i}">Delete</button>`}</div></div></div>`;
   }).join('')}</div></div>`;

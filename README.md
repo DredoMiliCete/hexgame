@@ -1,4 +1,4 @@
-# Hex board game - playtest table
+# Turfwars - playtest table
 
 Two-player, one-screen (hot-seat) simulator for your board game. Plain HTML/JS, no build step, no dependencies.
 
@@ -27,6 +27,14 @@ Menu -> Map maker. The list shows every map (the 5 built-in ones and yours) with
 - Wood Box (WB) and Steel Box (SB) tiles are in the Terrain group.
 - Custom maps and the option are stored in the browser (localStorage), so - like compositions - they belong to the address you use (keep using http://localhost:8000).
 
+## Look and feel (Turfwars)
+The game is set in a high-fantasy city inspired by 1950s New York, split in 7 burrows (`data/lore_places.csv`), one per built-in map. The UI has a noir / art-deco skin (`css/theme.css`).
+- **Burrow themes** (`js/themes.js`): each built-in map has its own tile colours + textures, UI colours, heading font and an animated backdrop behind the board (Pride: Midtown skyline and searchlights, Wrath: foundry, Gluttony: the park, Greed: the exchange, Lust: gallery quarter, Envy: harbor, Sloth: desert town). A location plaque shows the burrow name and its lore line. Custom maps use a generic Downtown look. Animations stop if the system asks for reduced motion.
+- To restyle a burrow: edit its entry in `THEMES` (`tiles`, `tex`, `vars`) or its function in `SCENERY`. `tests/themes.js` fails if Blu / Red / Middle / Wall / objective tiles stop being easy to tell apart in a theme.
+- **Roles:** the hero chips use the colours from `data/roles.csv`; hovering a role or subrole shows its description (and parent role / resemblance). The descriptions in `roles.csv` were cleaned up.
+- The menu shows a different burrow every time; the map selection screen shows a card for the chosen burrow.
+- Tile images in `assets/tiles/` still win over the theme colours if you add them.
+
 ## Options
 - **Maximum map size** for the map maker (default 13).
 - **Editable Heroes** (off by default): in *Hero abilities*, each hero gets HP / Move / Attack / Reach / AP inputs (**Save stats**, **Reset to CSV**). Edits are used by draft, constructed mode and the game while the option is on; turning it off goes back to roster.csv (the edits are kept).
@@ -47,8 +55,9 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - `js/engine.js` rules (no DOM). All player decisions go through an `io` object (`pickTile`, `choose`, `roll`, `pickHeroes`, `command`, `hotseat`) -
   this is the seam for the future two-window / two-PC mode: run the engine in one place and forward `io` calls to the right client.
 - `js/abilities.js` the 16 implemented heroes (+ tokens)  - `js/ui.js` board, HUD, io implementation  - `js/main.js` menus/draft
+- `js/themes.js` burrow themes, `js/roles.js` role chips + tooltip
 - `js/maps.js` map registry (built-in + custom), save rules (`validateMap`)  - `js/mapedit.js` editing model (teleport rules, undo)  - `js/mapmaker.js` map maker screens  - `js/options.js` options
-- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
+- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks, `tests/themes.js` theme + role checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
 
 ## Interpretations worth double-checking
 - Respawn time is not in rules.csv: `RESPAWN_BASE = 2` rounds (VIP: 1). A hero dying in round N returns at the end of round N+1.

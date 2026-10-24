@@ -1,13 +1,15 @@
 // Game screen: renders the board/HUD and implements the `io` object the engine talks to.
 import { toPixel, key, DIRS } from './hex.js';
 import { hgDir } from './maps.js';
+import { TILE_FILL, themeFor, sceneryHtml, plaqueHtml, themeStyle, patternDefs } from './themes.js';
+import { roleChips } from './roles.js';
 import { TOKENS } from './tokens.js';
 import { CONFIG, TEAM_NAMES } from './config.js';
 import { heroImage, tokenImage, tileImage, onAssetLoad } from './assets.js';
 import { heroColor, portrait, portraitById } from './colors.js';
 
 const S = 38;
-export const TILE_FILL = { BS: '#2f6fd0', RS: '#e0284f', BN: '#6aa957', RN: '#a39a39', MM: '#3f8a1c', WW: '#5e6264', WB: '#8a5a2b', SB: '#9aa3a8', BT: '#c68ad0', RT: '#c68ad0', BA: '#b6a0e0', RA: '#e0a0b0', CP: '#cf6bff', MP: '#ffc21a', HG: '#8d7b68', HT: '#7fd3b0' };
+export { TILE_FILL };
 export const TILE_GLYPH = { CP: '★', MP: '$', BA: '⚓', RA: '⚓', HT: '+', HG: '▲' };
 const BLU = '#5a9bff', RED = '#ff6379', GOLD = '#f4c34f';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -36,7 +38,7 @@ export class GameView {
     root.innerHTML = `<div class="game">
       <div class="hud" id="hud"></div>
       <div class="stage"><aside class="side" id="side0"></aside>
-        <section class="boardwrap"><svg id="board" xmlns="http://www.w3.org/2000/svg"></svg><div class="summary" id="summary" hidden></div><div class="cover" id="cover" hidden></div></section>
+        <section class="boardwrap"><div class="scenery" id="scenery"></div><svg id="board" xmlns="http://www.w3.org/2000/svg"></svg><div id="plaque"></div><div class="summary" id="summary" hidden></div><div class="cover" id="cover" hidden></div></section>
         <aside class="side" id="side1"></aside></div>
       <div class="dock" id="dock"><div class="info" id="info"></div>
         <div class="center"><div class="prompt" id="prompt"></div><div class="actions" id="actions"></div></div>
@@ -50,7 +52,13 @@ export class GameView {
   }
   // Called when leaving the game screen: stops this (abandoned) view from reacting to clicks or drawing into the next screen.
   destroy() { this.dead = true; this.root.removeEventListener('click', this.uiClick); clearTimeout(this.sumTimer); this.pending = null; }
-  attach(g) { this.g = g; this.render(); }
+  attach(g) { this.g = g; this.applyTheme(g.mapName); this.render(); }
+  // restyle the whole game screen for the burrow (map): colour variables, backdrop, location plaque
+  applyTheme(mapName) {
+    this.theme = themeFor(mapName); const game = this.root.querySelector('.game');
+    game.dataset.burrow = this.theme.custom ? 'downtown' : this.theme.key; game.setAttribute('style', themeStyle(this.theme));
+    this.$('scenery').innerHTML = sceneryHtml(this.theme); this.$('plaque').innerHTML = plaqueHtml(this.theme);
+  }
   render() { if (this.dead || this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g) this.draw(); }); }
   draw() { this.drawHud(); this.drawFoot(); this.drawSides(); this.drawBoard(); this.drawInfo(); this.drawActions(); this.drawSummary(); }
 
@@ -183,10 +191,12 @@ export class GameView {
     const P = (x, y) => toPixel(x, y, S);
     const xs = tiles.map((t) => P(t.x, t.y)[0]), ys = tiles.map((t) => P(t.x, t.y)[1]);
     const pad = S * 1.3, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) - x0 + pad, h = Math.max(...ys) - y0 + pad;
-    let out = `<defs><pattern id="wbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#8a5a2b"/><rect width="6" height="12" fill="#b98d58"/></pattern><pattern id="sbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#9aa3a8"/><rect width="6" height="12" fill="#6d777c"/></pattern><clipPath id="tokclip"><circle r="${S * 0.62}"/></clipPath><clipPath id="hexclip"><polygon points="${hex(0, 0, S - 2)}"/></clipPath></defs>`;
+    const th = this.theme || themeFor(g.mapName);
+    let out = `<defs>${patternDefs()}<pattern id="wbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#8a5a2b"/><rect width="6" height="12" fill="#b98d58"/></pattern><pattern id="sbp" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#9aa3a8"/><rect width="6" height="12" fill="#6d777c"/></pattern><clipPath id="tokclip"><circle r="${S * 0.62}"/></clipPath><clipPath id="hexclip"><polygon points="${hex(0, 0, S - 2)}"/></clipPath></defs>`;
     for (const t of tiles) {
       const [cx, cy] = P(t.x, t.y); const hl = this.hl.has(key(t.x, t.y)); const img = tileImage(t.t);
-      out += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${t.x}" data-y="${t.y}" class="tile ${hl ? 'hl' : ''}"><title>${t.x},${t.y} ${esc(t.t)}</title><polygon points="${hex(0, 0, S - 2)}" fill="${t.t === 'WB' ? 'url(#wbp)' : t.t === 'SB' ? 'url(#sbp)' : (TILE_FILL[t.t] || '#888')}" stroke="#2a2f31" stroke-width="3"/>`;
+      out += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})" data-x="${t.x}" data-y="${t.y}" class="tile ${hl ? 'hl' : ''}"><title>${t.x},${t.y} ${esc(t.t)}</title><polygon points="${hex(0, 0, S - 2)}" fill="${t.t === 'WB' ? 'url(#wbp)' : t.t === 'SB' ? 'url(#sbp)' : (th.tiles[t.t] || '#888')}" stroke="${th.stroke}" stroke-width="3"/>`;
+      if (th.tex[t.t]) out += `<polygon points="${hex(0, 0, S - 2)}" fill="url(#tx-${th.tex[t.t]})" pointer-events="none"/>`;
       if (img) out += `<image href="${img}" x="${-S}" y="${-S}" width="${2 * S}" height="${2 * S}" clip-path="url(#hexclip)" preserveAspectRatio="xMidYMid slice"/>`;
       out += tileDecor(t, P, !!img);
       const bx = g.boxAt(t.x, t.y); if (bx) out += `<text class="badge" text-anchor="middle" dy=".35em">♥${bx.hp}</text>`;
@@ -228,7 +238,7 @@ export class GameView {
     if (g.faceDown && e.kind === 'hero' && g.privateView !== e.owner) { el.innerHTML = '<p class="hint">Face-down hero.</p>'; return; }
     if (e.kind === 'hero') {
       const d = e.def;
-      el.innerHTML = `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(e.name)}</h4><div class="sub">${esc(d.class)} · ${esc(d.subrole)}</div></div></div>
+      el.innerHTML = `<div class="ihead" style="--hc:${heroColor(d.id)}">${portrait(d, 'lg')}<div><h4>${esc(e.name)}</h4><div class="sub">${roleChips(d)}</div></div></div>
         <div class="stats">HP ${Math.max(0, e.hp)}/${e.maxHp} · Move ${g.moveOf(e)} · ATK ${g.atkOf(e)} · Reach ${g.reachOf(e)} · AP ${e.ap}</div>
         <div class="chips">${this.chips(e).map((c) => `<span>${esc(c)}</span>`).join('')}</div>
         ${d.abilities.map((a) => `<p class="ab"><b>${esc(a.name)}</b>${a.passive ? ' <em>(passive)</em>' : ` <em>(${a.cost} AP)</em>`}<br>${esc(a.text)}</p>`).join('')}`;

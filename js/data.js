@@ -4,7 +4,7 @@ export const HEROES = [
   "num": "01/20",
   "nick": "dre",
   "image": "dre.png",
-  "blurb": "lean into magician idea, can have extra cards that have effects -> have a TP, a car shield and some other ability",
+  "blurb": "University professor that discovered a card suit mantle. When put on, turns him a bit insane, but gives him card powers.",
   "class": "Enforcer",
   "subrole": "Protector",
   "id": "vanish",
@@ -40,7 +40,7 @@ export const HEROES = [
   "num": "02/20",
   "nick": "patolas",
   "image": "patolas.png",
-  "blurb": "gambler with \"luva de pedreiro\" demon stand",
+  "blurb": "A gambler all his life, made a deal with a powerful devil to be the luckiest man alive. Now that devil goes arround with him, as he tries to pay his share of the deal.",
   "class": "Enforcer",
   "subrole": "Bruiser",
   "id": "glove",
@@ -76,7 +76,7 @@ export const HEROES = [
   "num": "03/20",
   "nick": "piky",
   "image": "piky.png",
-  "blurb": "transformer man",
+  "blurb": "Always loved cars, so after an almost fatal incident, turned himself into one. He is a transformer that can go from humanoid form to car form.",
   "class": "Enforcer",
   "subrole": "Engager",
   "id": "driver",
@@ -112,7 +112,7 @@ export const HEROES = [
   "num": "04/20",
   "nick": "portuga",
   "image": "portuga.png",
-  "blurb": "fisher?",
+  "blurb": "Drunken fishermen, has a metal leg. Not the best aim, maybe because he is always seeing double.",
   "class": "Duelist",
   "subrole": "Damage",
   "id": "sailor",
@@ -140,7 +140,7 @@ export const HEROES = [
     "name": "Metal Leg",
     "cost": 1,
     "passive": false,
-    "text": "Attack for 4 damage an adjacent enemy troop. Until Sailor dies, he has only 2 Move. *(once per life)*"
+    "text": "Attack for 4 damage an adjacent enemy entity. Until Sailor dies, he has only 2 Move. *(once per life)*"
    }
   ]
  },
@@ -148,7 +148,7 @@ export const HEROES = [
   "num": "05/20",
   "nick": "felix",
   "image": "felix.png",
-  "blurb": "homeless rat whistler, has a \"ratio\" (rat + radio), can summon 2 rats and hide in one of them. he is dealt double damage while in a rat, but if the fake rat is hit, it stuns the opponents",
+  "blurb": "An homeless guy who always had a knack for tingering with eletrical equipment. Tinkered with a radio that can now cast frequencies to speak with rats.",
   "class": "Duelist",
   "subrole": "Pick",
   "id": "squeak",
@@ -184,7 +184,7 @@ export const HEROES = [
   "num": "06/20",
   "nick": "jozze",
   "image": "jozze.png",
-  "blurb": "maybe someone that wants to fight but pushes the team up? FOREIGN BOXER",
+  "blurb": "Hailing from a far away land, he is one of the greatest boxers, who might be a little stranded for cash.",
   "class": "Duelist",
   "subrole": "Movement",
   "id": "monkey",
@@ -220,7 +220,7 @@ export const HEROES = [
   "num": "07/20",
   "nick": "didi",
   "image": "didi.png",
-  "blurb": "has a 2d tommygun, a pet ink crow and some small trap gadgets",
+  "blurb": "Not much is known about him, just that he is an artist who is infused with ink, being able to draw stuff and bring them to life. Has a pet ink crow, and part of his face is missing with ink leaking out.",
   "class": "Controller",
   "subrole": "Denial",
   "id": "greyson",
@@ -256,7 +256,7 @@ export const HEROES = [
   "num": "08/20",
   "nick": "couti",
   "image": "couti.png",
-  "blurb": "singer mage with afro and rad sunglasses, guitar weapon OR man in black styled guy relationed to trading OR merfolk (pimp) that uses his mind controlling voice",
+  "blurb": "Merfolk pimp and entrepeuner, his majestic singing manages to make even the strongest willed to forfeit their control to him.",
   "class": "Controller",
   "subrole": "Manipulation",
   "id": "trick",
@@ -292,7 +292,7 @@ export const HEROES = [
   "num": "09/20",
   "nick": "sacuber",
   "image": "sacuber.png",
-  "blurb": "one man band?",
+  "blurb": "A walking one man band. What can he not play?",
   "class": "Controller",
   "subrole": "Area",
   "id": "tune",
@@ -328,7 +328,7 @@ export const HEROES = [
   "num": "10/20",
   "nick": "zwist",
   "image": "zwist.png",
-  "blurb": "cat spirit shaman",
+  "blurb": "Powerful shaman warrior, his spirit animal is a giant fluffy fat cat he summons to battle.",
   "class": "Fixer",
   "subrole": "Presence",
   "id": "claws",
@@ -364,7 +364,7 @@ export const HEROES = [
   "num": "11/20",
   "nick": "kanga",
   "image": "kanga.png",
-  "blurb": "model OR rich guy",
+  "blurb": "Loan shark with some more hands on methods to make his loannes pay him back. Loves to throw coins at the problem.",
   "class": "Fixer",
   "subrole": "Utility",
   "id": "income",
@@ -400,7 +400,7 @@ export const HEROES = [
   "num": "12/20",
   "nick": "emi",
   "image": "emi.png",
-  "blurb": "vampire that makes paintings with blood",
+  "blurb": "Her favorite place? The snowy mountains, where she can slide down as much as she wants.",
   "class": "Fixer",
   "subrole": "Sustain",
   "id": "hail",
@@ -436,7 +436,7 @@ export const HEROES = [
   "num": "13/20",
   "nick": "realize",
   "image": "realize.png",
-  "blurb": "has an odin",
+  "blurb": "Treefolk man who shoots acorns from a wooden machinegun. The machine gun has a crank he spins.",
   "class": "Enforcer",
   "subrole": "Bruiser",
   "id": "oak",
@@ -472,7 +472,7 @@ export const HEROES = [
   "num": "14/20",
   "nick": "caiks",
   "image": "caiks.png",
-  "blurb": "shop owner of a shop with very unconventional items. has sold ALL THE ITEMS. has also found a place. his shop is of eldritch horrors",
+  "blurb": "The employee of the most cursed shop in the city. They sell everything from bottled horros beyond our comprehension to non euclidean geometry to eldtrich pets.",
   "class": "Fixer",
   "subrole": "Sustain",
   "id": "clark",
@@ -508,7 +508,7 @@ export const HEROES = [
   "num": "15/20",
   "nick": "artur",
   "image": "artur.png",
-  "blurb": "hunter with sniper rifle",
+  "blurb": "He is a hunter. He has a sniper rifle. He almost always hits his shots.",
   "class": "Duelist",
   "subrole": "Pick",
   "id": "bullseye",
@@ -544,7 +544,7 @@ export const HEROES = [
   "num": "16/20",
   "nick": "yolos",
   "image": "yolos.png",
-  "blurb": "smoking styled, viper style with smoke, can create smokes that block attack and special vision",
+  "blurb": "Smoked so much all his life, now can't life without it.",
   "class": "Controller",
   "subrole": "Denial",
   "id": "cigar",
@@ -604,7 +604,7 @@ export const HEROES = [
   "num": "19/20",
   "nick": "pombo",
   "image": "pombo.png",
-  "blurb": "",
+  "blurb": "pigeon head fashion motherfucker",
   "class": "Fixer",
   "subrole": "Utility",
   "id": "pombo",
@@ -722,5 +722,127 @@ export const TILE_INFO = {
   "look": "light gray with dark  gray stripes",
   "text": "same as a Wood Box tile, but has 3 HP instead of 1.",
   "territory": "NONE"
+ }
+};
+export const ROLES = {
+ "Enforcer": {
+  "desc": "“Enforces the battle lines.” The main frontline. Enforcers mark where each team should stand in a fight and are the ones who start it, creating space for the rest of their team to capitalize.",
+  "color": "#e5a93b"
+ },
+ "Duelist": {
+  "desc": "“Duels opponents.” A duelist's main job is to pick a target and kill it, either supported by their team or alone. Duelists excel at 1v1 fights.",
+  "color": "#c83333"
+ },
+ "Controller": {
+  "desc": "“Controls the enemy's options.” Through debuffs, taxing, crowd control, area damage or any other means, a controller dictates what the opponent can and can't do, sometimes while supporting their own team.",
+  "color": "#2a75b3"
+ },
+ "Fixer": {
+  "desc": "“Fixes the match in their favour.” Fixers come in many shapes and sizes. Some are not proficient in combat but carry an arsenal of supporting utility; others increase board presence. Either way, they add serious value to a win.",
+  "color": "#358c4f"
+ }
+};
+export const SUBROLES = {
+ "Protector": {
+  "desc": "Focused on protecting themselves or their teammates. Wants to survive a long time. Not the best at pushing the frontline forward, but great at holding it.",
+  "color": "#7c9352",
+  "parent": "Enforcer",
+  "like": "Fixer"
+ },
+ "Bruiser": {
+  "desc": "Deals a lot of damage while having a lot of health. Somewhat individualistic. Advances the frontline by killing the enemy frontline.",
+  "color": "#df7b43",
+  "parent": "Enforcer",
+  "like": "Duelist"
+ },
+ "Engager": {
+  "desc": "Wants to get behind the enemy frontline and crunch it together with their team. High movement and some survivability.",
+  "color": "#e1b854",
+  "parent": "Enforcer",
+  "like": "Controller"
+ },
+ "Damage": {
+  "desc": "Plays mainly in the frontline, supporting the Enforcers by pressuring the enemy frontline. Can both create scraps (put enemies low) and take scraps (finish off low enemies).",
+  "color": "#d04b36",
+  "parent": "Duelist",
+  "like": "Enforcer"
+ },
+ "Pick": {
+  "desc": "Plays further away from the team: VERY long range, VERY close range, or somewhere in between. Wants to take scraps, or even one-shot enemies.",
+  "color": "#b82e56",
+  "parent": "Duelist",
+  "like": "Controller"
+ },
+ "Movement": {
+  "desc": "Can play with the pack, alone, or alongside an ally. Very high movement and escapability. Wants to create scraps.",
+  "color": "#992d54",
+  "parent": "Duelist",
+  "like": "Fixer"
+ },
+ "Denial": {
+  "desc": "Controls by denying the enemy team's options: denying space (usually with structures) or stunning.",
+  "color": "#1c4b82",
+  "parent": "Controller",
+  "like": "Enforcer"
+ },
+ "Manipulation": {
+  "desc": "Controls by weakening the enemy team, with plenty of debuffs or board manipulation tools.",
+  "color": "#4c74cd",
+  "parent": "Controller",
+  "like": "Fixer"
+ },
+ "Area": {
+  "desc": "Controls by punishing the enemy team. Great at area damage and crowd control.",
+  "color": "#33379e",
+  "parent": "Controller",
+  "like": "Duelist"
+ },
+ "Presence": {
+  "desc": "Creates an advantage by having more entities on the board than the opponents: creating them and giving the team more options.",
+  "color": "#276f43",
+  "parent": "Fixer",
+  "like": "Duelist"
+ },
+ "Utility": {
+  "desc": "Brings loads of utility, mainly to help the team rather than debuff the opponents: buffs, movement options or action economy.",
+  "color": "#2b9371",
+  "parent": "Fixer",
+  "like": "Controller"
+ },
+ "Sustain": {
+  "desc": "Main goal is to keep allies alive: healing them, preventing damage or helping them escape, so the team stays in the fight.",
+  "color": "#68b258",
+  "parent": "Fixer",
+  "like": "Enforcer"
+ }
+};
+export const PLACES = {
+ "Pride": {
+  "name": "",
+  "desc": "Main burrow, big city vibes, tall buildings"
+ },
+ "Wrath": {
+  "name": "",
+  "desc": "Working class metal workers"
+ },
+ "Gluttony": {
+  "name": "",
+  "desc": "A lot of green, has a big park filled to the brim with stuff"
+ },
+ "Greed": {
+  "name": "",
+  "desc": "This universe version of wall street"
+ },
+ "Lust": {
+  "name": "",
+  "desc": "Art district + other stuff"
+ },
+ "Envy": {
+  "name": "",
+  "desc": "Surrounded by water (ocean of jealousy)"
+ },
+ "Sloth": {
+  "name": "",
+  "desc": "Wild west vibe with a bunch of nothing"
  }
 };

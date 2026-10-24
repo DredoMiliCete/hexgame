@@ -1,0 +1,124 @@
+/* ===== Turfwars: 1950s New York noir / art deco skin + burrow scenery =====
+   Loaded after style.css. Colours come from the CSS variables, which every burrow theme (js/themes.js) overrides on the game screen. */
+:root { color-scheme: dark; --deco: color-mix(in srgb, var(--gold) 30%, var(--line)); --glow: color-mix(in srgb, var(--gold) 45%, transparent);
+  --head: "Copperplate", "Copperplate Gothic Light", "Didot", Georgia, serif; }
+html, body { background-color: var(--bg);
+  background-image: repeating-linear-gradient(45deg, rgba(226, 182, 77, .035) 0 1px, transparent 1px 30px), repeating-linear-gradient(-45deg, rgba(226, 182, 77, .035) 0 1px, transparent 1px 30px); }
+body { letter-spacing: .01em; }
+
+/* type: deco headings */
+h2 { text-transform: uppercase; letter-spacing: .14em; font-size: 20px; color: var(--gold); }
+h3 { text-transform: uppercase; letter-spacing: .12em; font-size: 15px; }
+h4 { letter-spacing: .04em; }
+.t0 { color: var(--blu); } .t1 { color: var(--red); }
+
+/* buttons: brass-trimmed */
+button { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--deco); border-radius: 3px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 0 rgba(0, 0, 0, .55); transition: border-color .15s, box-shadow .15s, transform .08s; }
+button:hover:not(:disabled) { border-color: var(--gold); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 0 12px var(--glow); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button.big { text-transform: uppercase; letter-spacing: .14em; font-size: 14px; padding: 11px 22px; border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
+button.ghost { background: transparent; box-shadow: none; }
+input, select { border-radius: 3px; border-color: var(--deco); background: var(--inset); }
+
+/* panels: double-rule deco frame */
+.detail, .picks, .csel, .cardbox, .mmcard, .compitem, .mmside, .bcard, .summary, .tinfo { border: 1px solid var(--deco); border-radius: 4px; box-shadow: inset 0 0 0 3px var(--panel), inset 0 0 0 4px color-mix(in srgb, var(--gold) 16%, transparent); }
+.csel { padding: 8px; background: var(--panel); }
+.mmboard { border: 1px solid var(--deco); border-radius: 4px; }
+.hcard, .pk, .hrow, .ecol { border-radius: 3px; }
+.page > .pagehead { border-bottom: 1px solid var(--deco); padding-bottom: 10px; position: relative; }
+.page > .pagehead::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 64px; height: 3px; background: var(--gold); }
+
+/* game chrome */
+.hud { background: linear-gradient(180deg, color-mix(in srgb, var(--panel2) 70%, var(--panel)), var(--panel)); border-bottom: 2px solid var(--gold); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); position: relative; z-index: 4; }
+.side { background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 80%, var(--inset))); }
+.dock { box-shadow: 0 -6px 18px rgba(0, 0, 0, .4); }
+.foot { border-top-color: var(--deco); }
+.boardwrap { background: var(--board); overflow: hidden; }
+.gold, .rt, .ahead, .abar .who { text-shadow: 0 0 8px var(--glow); }
+
+/* ---- burrow scenery behind the board / menu / cards ---- */
+.scenery { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+.scn { width: 100%; height: 100%; display: block; }
+.boardwrap .scenery::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, .38) 0%, rgba(0, 0, 0, .12) 45%, rgba(0, 0, 0, .55) 100%); }
+#board { position: relative; z-index: 1; }
+.plaque { position: absolute; left: 12px; top: 10px; z-index: 2; pointer-events: none; display: grid; gap: 1px; max-width: 230px; padding: 7px 14px 8px; background: rgba(8, 10, 16, .74); border: 1px solid var(--gold); box-shadow: inset 0 0 0 3px rgba(8, 10, 16, .74), inset 0 0 0 4px color-mix(in srgb, var(--gold) 35%, transparent), 0 4px 14px rgba(0, 0, 0, .5); }
+.plaque small { font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.plaque b { font-family: var(--head); font-size: 24px; letter-spacing: .22em; color: var(--gold); text-shadow: 0 0 10px var(--glow); line-height: 1.1; }
+.plaque span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); }
+.plaque em { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 2px; }
+.cover.opaque { background: rgba(5, 7, 12, .94); }
+.cardbox { background: var(--panel); }
+
+/* ---- menu ---- */
+#app { min-height: 100vh; }
+.menu { position: relative; overflow: hidden; min-height: 100vh; }
+.menu .scenery { opacity: .95; }
+.menu .scenery::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 60%), linear-gradient(180deg, rgba(0, 0, 0, .35), rgba(0, 0, 0, 0) 30%); }
+.menuin { position: relative; z-index: 1; padding: 34px 58px 40px; background: rgba(7, 9, 14, .72); border: 1px solid var(--gold); box-shadow: inset 0 0 0 4px rgba(7, 9, 14, .72), inset 0 0 0 5px color-mix(in srgb, var(--gold) 38%, transparent), 0 10px 50px rgba(0, 0, 0, .7); overflow: hidden; }
+.sunburst { position: absolute; left: 50%; top: 0; width: 1200px; height: 560px; transform: translateX(-50%); z-index: -1; background: repeating-conic-gradient(from -90deg at 50% 0%, color-mix(in srgb, var(--gold) 14%, transparent) 0 4deg, transparent 4deg 12deg); -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); }
+.kicker { margin: 0 0 4px; text-transform: uppercase; letter-spacing: .38em; font-size: 11px; color: var(--muted); }
+.menuin h1 { font-size: clamp(52px, 9vw, 92px); line-height: 1; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); text-shadow: 0 0 22px var(--glow), 0 3px 0 #000; padding-left: .16em; }
+.menuin .tag { margin: 10px 0 28px; font-size: 13px; letter-spacing: .08em; background: none; text-transform: none; color: var(--muted); padding: 0; }
+.menubtns { width: min(360px, 88vw); }
+.menubtns button.big::before, .menubtns button.big::after { content: "\25C6"; color: var(--gold); font-size: .6em; margin: 0 12px; vertical-align: middle; opacity: .8; }
+.burrowline { position: absolute; z-index: 1; bottom: 14px; left: 0; right: 0; text-align: center; margin: 0; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.burrowline b { color: var(--gold); }
+
+/* burrow card (map selection) */
+.bcard { position: relative; height: 150px; overflow: hidden; margin: 6px 0 10px; background: var(--board); }
+.bcard .scenery::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, .72), rgba(0, 0, 0, .1) 75%); }
+.bctext { position: relative; z-index: 1; padding: 14px 18px; display: grid; gap: 2px; align-content: center; height: 100%; max-width: 70%; }
+.bctext small { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.bctext b { font-family: var(--head); font-size: 28px; letter-spacing: .2em; color: var(--gold); text-shadow: 0 0 10px var(--glow); }
+.bctext span { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.bctext em { color: var(--muted); font-size: 12px; }
+.bctext .sw { margin-top: 6px; } .bctext .sw i { display: inline-block; width: 18px; height: 18px; margin-right: 5px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, .35); }
+.bcard.random { height: auto; } .bcard.random .bctext { max-width: none; }
+
+/* ---- role chips + tooltip ---- */
+.rchips { display: inline-flex; gap: 4px; flex-wrap: wrap; vertical-align: middle; }
+.rchip { --rc: #8a8f98; display: inline-block; padding: 0 7px; border-radius: 2px; font-size: 10.5px; line-height: 17px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; cursor: help; white-space: nowrap;
+  color: color-mix(in srgb, var(--rc) 50%, #fff); background: color-mix(in srgb, var(--rc) 34%, var(--inset)); border: 1px solid var(--rc); }
+.rchip.subrole { background: color-mix(in srgb, var(--rc) 15%, var(--inset)); border-style: solid; border-left-width: 4px; }
+.sub .rchip, .ihead .rchip { font-size: 12px; line-height: 20px; padding: 0 9px; }
+.hcs { display: block; margin-top: 3px; min-width: 0; }
+.hcard { min-width: 0; overflow: hidden; }
+.hcard .rchips { display: flex; flex-direction: column; align-items: flex-start; max-width: 100%; gap: 2px; }
+.hcard .rchip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 9px; line-height: 15px; padding: 0 4px; letter-spacing: 0; }
+.hcard .rchip.subrole { border-left-width: 3px; }
+.roletip { position: fixed; z-index: 1000; max-width: 310px; padding: 10px 13px 11px; background: #090c12; color: #efe8d6; border: 1px solid #e2b64d; border-radius: 3px; box-shadow: 0 8px 28px rgba(0, 0, 0, .7), 0 0 0 3px #090c12, 0 0 0 4px rgba(226, 182, 77, .3); font-size: 13px; line-height: 1.45; pointer-events: none; }
+.roletip[hidden] { display: none; }
+.rthead { font-family: var(--head, Georgia, serif); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--rc) 60%, #fff); border-bottom: 2px solid var(--rc); padding-bottom: 3px; margin-bottom: 4px; }
+.rtmeta { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #a09b8c; margin-bottom: 6px; }
+.rtmeta b { color: color-mix(in srgb, var(--rc) 60%, #fff); }
+.roletip p { margin: 0; }
+
+/* ---- scenery animation (off for reduced motion) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .scn .twk { animation: twk 3.2s ease-in-out infinite; }
+  .scn .beam { animation: sweep 12s ease-in-out infinite alternate; }
+  .scn .smk { transform-box: fill-box; transform-origin: center; animation: rise 8s linear infinite; opacity: 0; }
+  .scn .spin { animation: spin 60s linear infinite; }
+  .scn .spark { animation: spark 2.6s ease-in-out infinite; }
+  .scn .furn { animation: furn 5s ease-in-out infinite alternate; }
+  .scn .ticker { animation: tick 55s linear infinite; }
+  .scn .coin { animation: coin 7s ease-in-out infinite alternate; }
+  .scn .drift { animation: drift 38s ease-in-out infinite alternate; }
+  .scn .bob { animation: bob 3.4s ease-in-out infinite; }
+  .scn .roll { animation: roll 38s linear infinite; }
+  .scn .neon { animation: flick 6s steps(1) infinite; }
+}
+@keyframes twk { 50% { opacity: .12; } }
+@keyframes sweep { from { transform: rotate(calc(var(--tilt, 8deg) * -1)); } to { transform: rotate(var(--tilt, 8deg)); } }
+@keyframes rise { 0% { transform: translateY(0) scale(.6); opacity: 0; } 15% { opacity: .55; } 100% { transform: translateY(-210px) scale(2.1); opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spark { 50% { opacity: 0; transform: translateY(-16px); } }
+@keyframes furn { to { opacity: .45; } }
+@keyframes tick { to { transform: translateX(-1750px); } }
+@keyframes coin { to { transform: translateY(34px); opacity: .08; } }
+@keyframes drift { from { transform: translateX(-60px); } to { transform: translateX(60px); } }
+@keyframes bob { 50% { transform: translateY(9px); } }
+@keyframes roll { from { transform: translateX(-80px); } to { transform: translateX(1750px); } }
+@keyframes flick { 0%, 100% { opacity: 1; } 92% { opacity: .55; } 94% { opacity: 1; } 96% { opacity: .4; } 97% { opacity: 1; } }
+
+@media (max-width: 1000px) { .plaque { max-width: 160px; } .plaque em { display: none; } .menuin { padding: 26px 24px 32px; } }
