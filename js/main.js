@@ -12,6 +12,7 @@ import { dossierHtml, hireCardHtml } from './lore.js';
 import { themeFor, sceneryHtml, themeStyle, burrowInfo, burrowKeys, THEMES } from './themes.js';
 import { allMapNames, isBuiltinMap } from './maps.js';
 import { mapMaker } from './mapmaker.js';
+import { initOnline } from './online.js';
 import { getMaxMapSize, setMaxMapSize, DEFAULT_MAX_MAP_SIZE, MAX_MAP_SIZE_LIMIT, getEditableHeroes, setEditableHeroes, getStartAP, setStartAP, MAX_START_AP, resetGameCache } from './options.js';
 import { STAT_FIELDS, baseStats, getHeroOverride, setHeroStats, resetHeroStats, applyHeroStats } from './heroStats.js';
 
@@ -57,12 +58,13 @@ function menu() {
     <div class="menubtns">
       <button class="big" data-go="draft">Play draft mode</button>
       <button class="big" data-go="constructed">Play constructed mode</button>
+      <button class="big" data-go="online">Play online</button>
       <button class="big" data-go="comps">Compbuilder</button>
       <button class="big" data-go="heroes">Hero abilities</button>
       <button class="big" data-go="maps">Map maker</button>
       <button class="big" data-go="options">Options</button>
     </div></div><p class="burrowline">Tonight in <b>${esc(bi.title.toUpperCase())}</b> · ${esc(bi.district)}</p></div>`;
-  app.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => ({ draft: () => setup('draft'), constructed: () => setup('constructed'), comps: compbuilder, heroes: heroesPanel, maps: openMapMaker, options: optionsPage }[b.dataset.go]())));
+  app.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => ({ draft: () => setup('draft'), constructed: () => setup('constructed'), comps: compbuilder, heroes: heroesPanel, maps: openMapMaker, options: optionsPage, online: () => online.page() }[b.dataset.go]())));
 }
 
 function openMapMaker() { rerender = null; mapMaker({ app, back: menu, setRerender: (fn) => { rerender = fn; } }); }
@@ -240,5 +242,6 @@ function startGame(map, teams, first) {
   game.run().catch((err) => { console.error(err); alert('Game error: ' + err.message + '\n(see the browser console)'); });
 }
 
+const online = initOnline({ app, esc, head, card, heroDetail, byId, menu, setRerender: (fn) => { rerender = fn; }, burrowCard });
 applyHeroStats();
-menu();
+if (!online.boot()) menu();

@@ -25,7 +25,7 @@ export function hgDir(hg) {
 const store = () => { try { return globalThis.localStorage || null; } catch { return null; } };
 export const isBuiltinMap = (name) => Object.prototype.hasOwnProperty.call(MAPS, name);
 
-function cleanTiles(list) {
+export function cleanTiles(list) {
   const out = []; const seen = new Set();
   for (const t of Array.isArray(list) ? list : []) {
     if (!t || !Number.isInteger(t.x) || !Number.isInteger(t.y) || t.x < 0 || t.y < 0 || !TILE_TYPES.includes(t.t) || seen.has(key(t.x, t.y))) continue;

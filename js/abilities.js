@@ -78,8 +78,9 @@ const IMPL = {
       const free = g2.freeAdjacent(h.x, h.y);
       const t = await g2.pickTile(g2.team(h), free, 'Ratio: place the new Rat on an adjacent free tile'); if (!t) return;
       A.commit();
-      const r1 = g2.spawnToken('rat', h.owner, h.x, h.y); r1.holds = h.id; h.inRat = r1.id; h.x = h.y = null;
-      const r2 = g2.spawnToken('rat', h.owner, t.x, t.y);
+      // The two Rats are created in random order: otherwise the lower entity id would tell the opponent (online) which Rat is Squeak.
+      let r1, r2; if (Math.random() < 0.5) { r1 = g2.spawnToken('rat', h.owner, h.x, h.y); r2 = g2.spawnToken('rat', h.owner, t.x, t.y); } else { r2 = g2.spawnToken('rat', h.owner, t.x, t.y); r1 = g2.spawnToken('rat', h.owner, h.x, h.y); }
+      r1.holds = h.id; h.inRat = r1.id; h.x = h.y = null;
       await g2.io.hotseat(h.owner, `${g2.name(1 - h.owner)}: turn around! ${g2.name(h.owner)} is secretly deciding whether to switch the Rats.`, { secret: true });
       const sw = await g2.io.choose(h.owner, 'Switch the positions of the two Rats?', [{ label: 'Switch', value: true }, { label: 'Keep', value: false }], { cancel: false, secret: true });
       if (sw) { [r1.x, r2.x] = [r2.x, r1.x]; [r1.y, r2.y] = [r2.y, r1.y]; }

@@ -15,11 +15,12 @@ export const heroDef = (id) => HEROES.find((h) => h.id === id);
 
 export class Game {
   // opts.startAP: [Blu, Red] AP each team starts every round with, before gathering (Options screen; default 0)
+  // opts.mapTiles: tiles of the map (otherwise looked up by name: built-in or saved custom map)
   constructor(mapName, teams, io, first = 0, opts = {}) {
     this.io = io; this.mapName = mapName; this.first = first; this.startPlayer = first;
     this.startAP = [0, 1].map((t) => Math.max(0, Math.floor(Number(opts.startAP?.[t])) || 0));
     this.tiles = new Map();
-    const mapTiles = getMapTiles(mapName);
+    const mapTiles = opts.mapTiles || getMapTiles(mapName); // opts.mapTiles: a custom map sent over the network
     if (!mapTiles) throw new Error(`Unknown map: ${mapName}`);
     for (const t of mapTiles) {
       const tile = { ...t };

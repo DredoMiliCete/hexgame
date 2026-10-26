@@ -10,7 +10,7 @@ await import('../js/main.js');
 const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
 const tick = () => new Promise((r) => setTimeout(r, 2));
 const click = (el) => el.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
-click($$('[data-go]')[2]); await tick();           // compbuilder
+click($('[data-go="comps"]')); await tick();           // compbuilder
 if (!document.body.textContent.includes('Interrail Comp')) throw new Error('Interrail Comp missing');
 click($('[data-new]')); await tick(); for (const c of $$('.hcard').slice(0, 7)) { click(c); await tick(); }
 const nm = $('#cname'); nm.value = 'Test comp'; nm.dispatchEvent(new dom.window.Event('input')); click($('#csave')); await tick();

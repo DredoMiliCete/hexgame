@@ -60,7 +60,7 @@ export class GameView {
     game.dataset.burrow = this.theme.custom ? 'downtown' : this.theme.key; game.setAttribute('style', themeStyle(this.theme));
     this.$('scenery').innerHTML = sceneryHtml(this.theme); this.$('plaque').innerHTML = plaqueHtml(this.theme);
   }
-  render() { if (this.dead || this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g) this.draw(); }); }
+  render() { if (this.dead || this.queued) return; this.queued = true; requestAnimationFrame(() => { this.queued = false; if (this.g && !this.dead) this.draw(); }); }
   draw() { this.drawHud(); this.drawFoot(); this.drawSides(); this.drawBoard(); this.drawInfo(); this.drawActions(); this.drawSummary(); }
 
   // ---------- IO ----------
@@ -68,6 +68,7 @@ export class GameView {
     const v = this;
     const setPrompt = (team, html) => { v.promptTeam = team; v.promptHtml = `<div class="who t${team}">${TEAM_NAMES[team]}</div><div class="msg">${html}</div>`; };
     const clear = () => { v.promptHtml = ''; v.promptTeam = null; };
+    v.setPrompt = setPrompt; v.clearPrompt = clear;
     return {
       log: (m) => { const el = v.$('log'); const d = document.createElement('div'); d.textContent = m; el.appendChild(d); while (el.children.length > 300) el.firstChild.remove(); el.scrollTop = el.scrollHeight; },
       refresh: () => v.render(),
@@ -89,15 +90,7 @@ export class GameView {
         v.choices = options; v.promptHtml += `<div class="opts">${options.map((op, i) => `<button data-act="opt" data-i="${i}" ${op.hero ? `style="--hc:${heroColor(op.hero)}" class="herobtn"` : ''}>${op.hero ? portraitById(op.hero, 'xs') : ''}${esc(op.label)}</button>`).join('')}${o.cancel !== false ? '<button data-act="cancel" class="ghost">Cancel</button>' : ''}</div>`;
         v.pending = (val) => { v.mode = 'idle'; v.pending = null; clear(); res(val); }; v.render();
       }),
-      roll: async (team, n, label) => {
-        const r = 1 + Math.floor(Math.random() * n);
-        await new Promise((res) => {
-          v.mode = 'choose'; setPrompt(team, `${esc(label)}: rolled a <b class="die">${r}</b>`); v.choices = [{ value: 1 }];
-          v.promptHtml += '<div class="opts"><button data-act="opt" data-i="0">OK</button></div>';
-          v.pending = () => { v.mode = 'idle'; v.pending = null; clear(); res(); }; v.render();
-        });
-        return r;
-      },
+      roll: async (team, n, label) => { const r = 1 + Math.floor(Math.random() * n); await v.showRoll(team, label, r); return r; },
       pickHeroes: (team, cand, max, forced) => new Promise((res) => {
         const chosen = new Set(forced); v.mode = 'heroes';
         const paint = () => {
@@ -128,7 +121,7 @@ export class GameView {
     if (a === 'exit') return this.onExit();
     if (a === 'cancel') return this.pending?.(null);
     if (a === 'extra') return this.pending?.({ auto: true });
-    if (a === 'opt') return this.pending?.(this.choices[Number(b.dataset.i)].value);
+    if (a === 'opt') { const c = this.choices?.[Number(b.dataset.i)]; return c ? this.pending?.(c.value) : undefined; } // a stale button from the previous prompt does nothing
     if (a === 'gather') return this.toggleGather(Number(b.dataset.id));
     if (a === 'submit') return this.pending?.();
     if (a === 'do') { this.sel = Number(b.dataset.id); return this.pending?.({ type: 'do', entId: Number(b.dataset.id), key: b.dataset.key }); }
@@ -136,7 +129,7 @@ export class GameView {
     if (a === 'closesum') { this.summary = null; this.render(); return; }
     if (a === 'rats') { this.showRats = !this.showRats; this.render(); }
     if (a === 'coords') { this.showCoords = !this.showCoords; this.render(); }
-    if (a === 'menu') { if (confirm('Leave this game?')) this.onExit(); }
+    if (a === 'menu') { if (confirm(this.leaveText || 'Leave this game?')) this.onExit(); }
   }
 
   // ---------- drawing ----------
@@ -148,7 +141,7 @@ export class GameView {
       const active = inRound && t.team === i && !g.over;
       const total = Math.max(g.apStart[i], g.pool[i]);
       const gl = g.glovePool[i] ? ` <small>+${g.glovePool[i]} Glove</small>` : '';
-      return `<div class="hudteam t${i} ${active ? 'active' : ''}"><div class="tn"><b>${TEAM_NAMES[i]}</b>${active ? '<span class="tag">playing</span>' : ''}${g.passed[i] ? '<span class="tag dim">passed</span>' : ''}</div>
+      return `<div class="hudteam t${i} ${active ? 'active' : ''}"><div class="tn"><b>${TEAM_NAMES[i]}</b>${this.you === i ? '<span class="tag you">you</span>' : ''}${active ? '<span class="tag">playing</span>' : ''}${g.passed[i] ? '<span class="tag dim">passed</span>' : ''}</div>
         <div class="apline" title="Action points left / gathered this round"><span class="apnum">${g.pool[i]}<small>/${total} AP</small>${gl}</span><span class="pips">${total <= 14 ? pips(g.pool[i], total) : ''}</span></div></div>`;
     };
     const balls = (i) => `<span class="vball" title="${TEAM_NAMES[i]} VIP kills: ${g.vipKills[i]}/${CONFIG.VIP_KILLS_TO_WIN}">${Array.from({ length: CONFIG.VIP_KILLS_TO_WIN }, (_, k) => `<i class="${k < g.vipKills[i] ? 'k' + i : ''}"></i>`).join('')}</span>`;
@@ -161,6 +154,21 @@ export class GameView {
       <div class="hudr">${team(1)}</div>`;
   }
   // Menu options live at the bottom corners.
+  // The die result is shown with an OK button (online: the server rolled it)
+  showRoll(team, label, r) {
+    const v = this;
+    return new Promise((res) => {
+      v.mode = 'choose'; v.setPrompt(team, `${esc(label)}: rolled a <b class="die">${r}</b>`); v.choices = [{ value: 1 }];
+      v.promptHtml += '<div class="opts"><button data-act="opt" data-i="0">OK</button></div>';
+      v.pending = () => { v.mode = 'idle'; v.pending = null; v.clearPrompt(); res(); }; v.render();
+    });
+  }
+  // Online: the other player has to decide
+  setWait(team, text) {
+    this.mode = 'idle'; this.pending = null; this.hl = new Map(); this.promptTeam = team;
+    this.promptHtml = `<div class="who t${team}">${TEAM_NAMES[team]}</div><div class="msg">Waiting for <b>${TEAM_NAMES[team]}</b>...${text ? `<br><small>${esc(text)}</small>` : ''}</div>`;
+    this.render();
+  }
   drawFoot() {
     this.$('foot').innerHTML = `<div class="footl"><button data-act="menu">Menu</button><button data-act="coords" class="${this.showCoords ? 'on' : ''}">Coords</button></div>
       <div class="footr"><button data-act="rats" class="${this.showRats ? 'on' : ''}">Show Rat identities</button></div>`;

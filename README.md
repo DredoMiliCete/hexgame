@@ -3,9 +3,9 @@
 Two-player, one-screen (hot-seat) simulator for your board game. Plain HTML/JS, no build step, no dependencies.
 
 ## Run it
-Browsers block ES modules from `file://`, so serve the folder:
-- Windows: double-click `run.bat`  - Mac/Linux: `./run.sh`  (needs Python 3), then open http://localhost:8000
-- or any static server, e.g. `npx serve`
+- Windows: double-click `run.bat`  - Mac/Linux: `./run.sh` (or `npm start`), then open http://localhost:8000
+- Needs **Node.js 18+** (https://nodejs.org) for online play. Without Node the scripts fall back to Python (`python3 -m http.server`): hotseat only.
+- Browsers block ES modules from `file://`, so always open the game through the server address, never the file.
 
 ## Menu
 Draft mode (1-2-2-2-2-2-2-1 picks, starting player picks first) - Constructed mode (7 heroes each, repeats allowed across teams)
@@ -14,6 +14,15 @@ Draft mode (1-2-2-2-2-2-2-1 picks, starting player picks first) - Constructed mo
 - Map maker (create, edit and delete maps - see below)
 - Options: maximum map size, **Editable Heroes** (off by default), and **Reset game cache**.
 Compositions are stored in the browser (localStorage), so they belong to the address you use (keep using http://localhost:8000).
+
+## Online play (1v1 on two computers)
+Menu -> **Play online**. One player creates a room (map, starting player, side) and sends the invite link / 5-letter code; the other joins; both pick their 7 heroes and press Ready.
+**Step-by-step guide (host and friend, Wi-Fi / tunnel / hosting, troubleshooting): [docs/ONLINE.md](docs/ONLINE.md).**
+- The rules run on a small Node server (`server/`, no dependencies): the browsers only show the game and send decisions. Live updates go to the browsers as Server-Sent Events, their answers come back as POST requests.
+- Each player only receives what they may see: the opponent's face-down heroes, VIP and which Rat is Squeak never leave the server (`viewSnapshot` in `js/netstate.js`). Squeak's two Rats are created in random order so entity ids do not give it away.
+- The server only accepts an answer that was actually offered to that player (tile, option, heroes to gather, command); dice are rolled server-side.
+- Reconnecting: refresh, close the tab or lose the connection and come back (same browser: Play online -> Resume); the server replays the state and the pending question.
+- This first version: Constructed mode only; the host's map and Starting AP are used; *Editable Heroes* edits are not shared (roster.csv values are used); no timers; games live in the server's memory.
 
 ## Map maker
 Menu -> Map maker. The list shows every map (the 5 built-in ones and yours) with a preview: **New map**, **Edit**, and **Delete** (custom maps only).
@@ -60,9 +69,10 @@ Hero colour identities are placeholders in `js/colors.js`. Constants (respawn ti
 - `js/engine.js` rules (no DOM). All player decisions go through an `io` object (`pickTile`, `choose`, `roll`, `pickHeroes`, `command`, `hotseat`) -
   this is the seam for the future two-window / two-PC mode: run the engine in one place and forward `io` calls to the right client.
 - `js/abilities.js` the 16 implemented heroes (+ tokens)  - `js/ui.js` board, HUD, io implementation  - `js/main.js` menus/draft
+- `server/server.js` HTTP + event streams + static files, `server/rooms.js` rooms, answer validation, the network `io`; `js/netstate.js` snapshots/masking/mirror; `js/net.js` + `js/online.js` browser side of online play
 - `js/themes.js` burrow themes, `js/roles.js` role chips + tooltip, `js/lore.js` home turf, case file and hire card
 - `js/maps.js` map registry (built-in + custom), save rules (`validateMap`)  - `js/mapedit.js` editing model (teleport rules, undo)  - `js/mapmaker.js` map maker screens  - `js/options.js` options
-- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks, `tests/themes.js` theme + role checks (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
+- `tests/sim.js` random bot games, `tests/rules.js` rule checks, `tests/maps.js` map maker checks, `tests/themes.js` theme + role checks, `tests/online.js` online protocol (real server + simulated players: validation, reconnect, secrecy, mirror fidelity) (`node tests/...`, or `npm test`), `tests/ui-smoke.mjs`, `tests/ui-maps.mjs` and `tests/ui-options.mjs` jsdom UI runs (dev only, need `npm i jsdom`; point `JSDOM_FROM` at the folder that has it)
 
 ## Interpretations worth double-checking
 - Respawn time is not in rules.csv: `RESPAWN_BASE = 2` rounds (VIP: 1). A hero dying in round N returns at the end of round N+1.
